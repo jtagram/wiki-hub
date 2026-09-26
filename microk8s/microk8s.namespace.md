@@ -14,13 +14,17 @@ Todos los comandos siguientes se ejecutan dentro de la sesión SSH del servidor 
 
 ## 2. Crear los namespaces
 
-Crear el namespace para los componentes de infraestructura:
+Un namespace por aplicación:
 
 ```bash
-microk8s kubectl create namespace infra-hub
+microk8s kubectl create namespace iam
+microk8s kubectl create namespace iam-api
+microk8s kubectl create namespace infra-hub-api
+microk8s kubectl create namespace ticket-hub
+microk8s kubectl create namespace ticket-hub-api
 ```
 
-Crear el namespace para las bases de datos:
+Crear además el namespace para las bases de datos:
 
 ```bash
 microk8s kubectl create namespace databases
@@ -28,10 +32,11 @@ microk8s kubectl create namespace databases
 
 ## 3. Verificar
 
-Comprobar que ambos namespaces fueron creados correctamente:
+Comprobar que todos los namespaces fueron creados correctamente:
 
 ```bash
 microk8s kubectl get namespaces
 ```
 
-La salida debe incluir `infra-hub` y `databases` con estado `Active`.
+La salida debe incluir `iam`, `iam-api`, `infra-hub-api`, `ticket-hub`,
+`ticket-hub-api` y `databases`, todos con estado `Active`.

@@ -36,3 +36,109 @@ microk8s kubectl get secret postgres-credentials -n databases
 ```
 
 La salida debe mostrar el secreto `postgres-credentials` dentro del namespace `databases`. Este comando no muestra los valores de las credenciales.
+
+## 4. Secretos por aplicación
+
+### 4.1. `iam-api` (namespace `iam-api`)
+
+Ver [`iam-api/README.md`](../../iam-api/README.md) para la lista completa de variables y cómo obtener cada valor.
+
+**`postgres-credentials`** (`POSTGRES_USER`, `POSTGRES_PASSWORD`):
+
+```bash
+microk8s kubectl create secret generic postgres-credentials \
+  -n iam-api \
+  --from-literal=POSTGRES_USER='<usuario-real>' \
+  --from-literal=POSTGRES_PASSWORD='<password-real>'
+```
+
+**`jwt-keys`** (`JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`):
+
+```bash
+microk8s kubectl create secret generic jwt-keys \
+  -n iam-api \
+  --from-file=JWT_PRIVATE_KEY='<ruta-a-jwt_private.pem>' \
+  --from-file=JWT_PUBLIC_KEY='<ruta-a-jwt_public.pem>'
+```
+
+### 4.2. `infra-hub-api` (namespace `infra-hub-api`)
+
+Ver [`infra-hub-api/README.md`](../../infra-hub-api/README.md) para la lista completa de variables y cómo obtener cada valor.
+
+**`postgres-credentials`** (`POSTGRES_USER`, `POSTGRES_PASSWORD`):
+
+```bash
+microk8s kubectl create secret generic postgres-credentials \
+  -n infra-hub-api \
+  --from-literal=POSTGRES_USER='<usuario-real>' \
+  --from-literal=POSTGRES_PASSWORD='<password-real>'
+```
+
+**`server-ssh-key`** (`SERVER_SSH_HOST`, `SERVER_SSH_USER`, `SERVER_SSH_PRIVATE_KEY`):
+
+```bash
+microk8s kubectl create secret generic server-ssh-key \
+  -n infra-hub-api \
+  --from-literal=SERVER_SSH_HOST='<host-o-ip-de-pcbox>' \
+  --from-literal=SERVER_SSH_USER='<usuario-ssh>' \
+  --from-file=SERVER_SSH_PRIVATE_KEY='<ruta-a-la-clave-privada>'
+```
+
+### 4.3. `ticket-hub-api` (namespace `ticket-hub-api`)
+
+Ver [`ticket-hub-api/README.md`](../../ticket-hub-api/README.md) para la lista completa de variables y cómo obtener cada valor.
+
+**`postgres-credentials`** (`POSTGRES_USER`, `POSTGRES_PASSWORD`):
+
+```bash
+microk8s kubectl create secret generic postgres-credentials \
+  -n ticket-hub-api \
+  --from-literal=POSTGRES_USER='<usuario-real>' \
+  --from-literal=POSTGRES_PASSWORD='<password-real>'
+```
+
+**`jwt-public-key`** (`JWT_PUBLIC_KEY`):
+
+```bash
+microk8s kubectl create secret generic jwt-public-key \
+  -n ticket-hub-api \
+  --from-file=JWT_PUBLIC_KEY='<ruta-a-jwt_public.pem>'
+```
+
+### 4.4. `iam` (namespace `iam`)
+
+Ver [`iam/README.md`](../../iam/README.md) para la lista completa de variables y cómo obtener cada valor.
+
+```bash
+microk8s kubectl create secret generic app-config \
+  -n iam \
+  --from-literal=IAM_API_URL='<url-real>' \
+  --from-literal=IAM_APPLICATION_NAME='<nombre-real>'
+```
+
+### 4.5. `ticket-hub` (namespace `ticket-hub`)
+
+Ver [`ticket-hub/README.md`](../../ticket-hub/README.md) para la lista completa de variables y cómo obtener cada valor.
+
+```bash
+microk8s kubectl create secret generic app-config \
+  -n ticket-hub \
+  --from-literal=IAM_API_URL='<url-real>' \
+  --from-literal=TICKET_HUB_APPLICATION_NAME='<nombre-real>' \
+  --from-literal=TICKET_HUB_API_URL='<url-real>'
+```
+
+## 5. Verificar
+
+Comprobar que los Secrets quedaron creados en el namespace correcto de cada app:
+
+```bash
+microk8s kubectl get secrets -n iam
+microk8s kubectl get secrets -n iam-api
+microk8s kubectl get secrets -n infra-hub-api
+microk8s kubectl get secrets -n ticket-hub
+microk8s kubectl get secrets -n ticket-hub-api
+```
+
+`get secrets` no expone los valores, solo confirma qué Secrets existen en
+cada namespace.
