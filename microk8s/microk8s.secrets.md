@@ -97,48 +97,25 @@ microk8s kubectl create secret generic postgres-credentials \
   --from-literal=POSTGRES_PASSWORD='<password-real>'
 ```
 
-**`jwt-public-key`** (`JWT_PUBLIC_KEY`):
-
-```bash
-microk8s kubectl create secret generic jwt-public-key \
-  -n ticket-hub-api \
-  --from-file=JWT_PUBLIC_KEY='<ruta-a-jwt_public.pem>'
-```
-
 ### 4.4. `iam` (namespace `iam`)
 
-Ver [`iam/README.md`](../../iam/README.md) para la lista completa de variables y cómo obtener cada valor.
-
-```bash
-microk8s kubectl create secret generic app-config \
-  -n iam \
-  --from-literal=IAM_API_URL='<url-real>' \
-  --from-literal=IAM_APPLICATION_NAME='<nombre-real>'
-```
+Ver [`iam/README.md`](../../iam/README.md) para la lista completa de variables y cómo obtener cada valor. `IAM_API_URL` e `IAM_APPLICATION_NAME` van como env var literal directamente en `deployment.yaml`, no como Secret — este namespace no necesita un Secret propio.
 
 ### 4.5. `ticket-hub` (namespace `ticket-hub`)
 
-Ver [`ticket-hub/README.md`](../../ticket-hub/README.md) para la lista completa de variables y cómo obtener cada valor.
-
-```bash
-microk8s kubectl create secret generic app-config \
-  -n ticket-hub \
-  --from-literal=IAM_API_URL='<url-real>' \
-  --from-literal=TICKET_HUB_APPLICATION_NAME='<nombre-real>' \
-  --from-literal=TICKET_HUB_API_URL='<url-real>'
-```
+Ver [`ticket-hub/README.md`](../../ticket-hub/README.md) para la lista completa de variables y cómo obtener cada valor. `IAM_API_URL`, `TICKET_HUB_APPLICATION_NAME` y `TICKET_HUB_API_URL` van como env var literal directamente en `deployment.yaml`, no como Secret — este namespace no necesita un Secret propio.
 
 ## 5. Verificar
 
 Comprobar que los Secrets quedaron creados en el namespace correcto de cada app:
 
 ```bash
-microk8s kubectl get secrets -n iam
 microk8s kubectl get secrets -n iam-api
 microk8s kubectl get secrets -n infra-hub-api
-microk8s kubectl get secrets -n ticket-hub
 microk8s kubectl get secrets -n ticket-hub-api
 ```
+
+`iam` y `ticket-hub` no aparecen acá porque no tienen Secret propio.
 
 `get secrets` no expone los valores, solo confirma qué Secrets existen en
 cada namespace.
