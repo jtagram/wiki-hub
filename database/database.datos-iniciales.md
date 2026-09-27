@@ -4,12 +4,22 @@ Instructivo para insertar, en la base `iam_api`, los datos mínimos que hacen fa
 
 Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya tienen que existir) y `wiki-hub/script/main.sh` (con la salida a mano: `ADMIN_NAME`, `ADMIN_LASTNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `CLIENT_SECRET_HASH`).
 
+Conectate por SSH al servidor `pcbox` sobre su IP de Tailscale (ver `pcbox/pcbox.bootstrap.md`):
+
+```bash
+ssh -i deploy_key jhon@IP_TAILSCALE
+```
+
 ## 1. El SQL
+
+Creá un archivo `datos-iniciales.sql` (en el servidor, o en tu PC cliente si después lo vas a copiar) con el siguiente contenido. Antes de usarlo, reemplazá cada placeholder `<...-real>` por el valor real correspondiente, generado por `wiki-hub/script/main.sh`:
+
+- `<ADMIN_NAME-real>` / `<ADMIN_LASTNAME-real>` / `<ADMIN_EMAIL-real>` / `<ADMIN_PASSWORD_HASH-real>` → `ADMIN_NAME` / `ADMIN_LASTNAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` de la salida del script.
+- `<CLIENT_SECRET_HASH-real>` → `CLIENT_SECRET_HASH` de la misma salida.
 
 ```sql
 -- -----------------------------------------------------------------------------
--- 1) Aplicaciones (si ya las cargaste por otro medio, esto no duplica nada --
---    apps_applications.name tiene UNIQUE)
+-- 1) Aplicaciones
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_applications (name, description)
 VALUES ('iam', 'Identity provider')
@@ -24,7 +34,7 @@ VALUES ('infra-hub-api', 'Ejecucion de operaciones de infraestructura')
 ON CONFLICT (name) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
--- 2) Rol ADMIN por aplicación (apps_roles tiene UNIQUE (application_id, name))
+-- 2) Rol ADMIN por aplicación
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
@@ -46,8 +56,6 @@ ON CONFLICT (application_id, name) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
 -- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
---    name/lastname/email/password salen tal cual de generate_admin_user_credentials.sh
---    (ADMIN_NAME, ADMIN_LASTNAME, ADMIN_EMAIL, ADMIN_PASSWORD_HASH).
 -- -----------------------------------------------------------------------------
 INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('<ADMIN_NAME-real>', '<ADMIN_LASTNAME-real>', '<ADMIN_EMAIL-real>', '<ADMIN_PASSWORD_HASH-real>')
@@ -77,11 +85,6 @@ WHERE u.email = '<ADMIN_EMAIL-real>'
 
 -- -----------------------------------------------------------------------------
 -- 4) apps-user de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
---    cliente_id tiene que ser exactamente "ticket-hub-api" (coincide con el
---    CLIENT_ID hardcodeado en generate_client_credentials.sh). cliente_secret
---    es CLIENT_SECRET_HASH tal cual lo generó wiki-hub/script/main.sh.
---    Se le asigna rol ADMIN sobre las dos aplicaciones: "infra-hub-api" y
---    "ticket-hub" (esta última ya insertada en la sección 2).
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH-real>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
