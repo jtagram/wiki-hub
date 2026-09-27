@@ -1,6 +1,6 @@
 # Crear secretos en MicroK8s
 
-Configuración inicial de los secretos utilizados por los servicios del cluster MicroK8s. Por el momento solo se creará el secreto con las credenciales de PostgreSQL; los demás secretos se agregarán más adelante cuando sean necesarios.
+Configuración inicial de los secretos utilizados por los servicios del cluster MicroK8s.
 
 ## 1. Conectarse al servidor
 
@@ -12,7 +12,7 @@ ssh -i deploy_key jhon@IP_TAILSCALE
 
 Todos los comandos siguientes se ejecutan dentro de la sesión SSH del servidor `pcbox`.
 
-Antes de crear el secreto, asegúrate de que el namespace `databases` ya exista. Si todavía no lo creaste, sigue el instructivo de `pcbox.namespace.md`.
+Antes de crear el secreto, asegúrate de que los namespaces ya existan. Si todavía no los creaste, sigue el instructivo de `pcbox.namespace.md`.
 
 ## 2. Crear el secreto de PostgreSQL
 
@@ -24,8 +24,6 @@ microk8s kubectl create secret generic postgres-credentials \
 	--from-literal=POSTGRES_USER=usuario_db \
 	--from-literal=POSTGRES_PASSWORD=clave_segura
 ```
-
-Reemplaza `usuario_db` y `clave_segura` por las credenciales reales antes de ejecutar el comando. No incluyas esas credenciales en el repositorio ni las compartas en texto plano.
 
 ## 3. Verificar
 
@@ -109,14 +107,6 @@ microk8s kubectl create secret generic infra-hub-api-service-credentials \
   --from-literal=CLIENT_ID='<clienteId-real>' \
   --from-literal=CLIENT_SECRET='<clienteSecret-real>'
 ```
-
-Credenciales de un apps-user de `iam-api` (`POST /apps-users`, admin-only)
-con rol ADMIN sobre la aplicación "infra-hub-api" — es el mecanismo real de
-`iam-api` para credenciales de servicio (machine-to-machine), no un internal
-user humano. El `clienteSecret` solo se muestra una vez, al crear el
-apps-user; guardalo en ese momento. `ticket-hub-api` se loguea con estas
-credenciales (`POST /apps-users/login`) para obtener el JWT que usa en cada
-llamada a `infra-hub-api`.
 
 Las variables no sensibles (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `PORT`, `LOG_LEVEL`, `INFRA_HUB_API_URL`, `IAM_API_URL`, `TICKET_HUB_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
 
