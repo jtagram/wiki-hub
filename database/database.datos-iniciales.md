@@ -8,46 +8,41 @@ Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya 
 
 ```sql
 -- -----------------------------------------------------------------------------
--- 1) Aplicaciones (si ya las cargaste por otro medio, esto no duplica nada)
+-- 1) Aplicaciones (si ya las cargaste por otro medio, esto no duplica nada --
+--    apps_applications.name tiene UNIQUE)
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_applications (name, description)
-SELECT 'iam', 'Identity provider'
-WHERE NOT EXISTS (SELECT 1 FROM apps_applications WHERE name = 'iam');
+VALUES ('iam', 'Identity provider')
+ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO apps_applications (name, description)
-SELECT 'ticket-hub', 'Frontend de tickets de infraestructura'
-WHERE NOT EXISTS (SELECT 1 FROM apps_applications WHERE name = 'ticket-hub');
+VALUES ('ticket-hub', 'Frontend de tickets de infraestructura')
+ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO apps_applications (name, description)
-SELECT 'infra-hub-api', 'Ejecucion de operaciones de infraestructura'
-WHERE NOT EXISTS (SELECT 1 FROM apps_applications WHERE name = 'infra-hub-api');
+VALUES ('infra-hub-api', 'Ejecucion de operaciones de infraestructura')
+ON CONFLICT (name) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
--- 2) Rol ADMIN por aplicación
+-- 2) Rol ADMIN por aplicación (apps_roles tiene UNIQUE (application_id, name))
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
 FROM apps_applications a
 WHERE a.name = 'iam'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_roles r WHERE r.application_id = a.id AND r.name = 'ADMIN'
-  );
+ON CONFLICT (application_id, name) DO NOTHING;
 
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
 FROM apps_applications a
 WHERE a.name = 'ticket-hub'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_roles r WHERE r.application_id = a.id AND r.name = 'ADMIN'
-  );
+ON CONFLICT (application_id, name) DO NOTHING;
 
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
 FROM apps_applications a
 WHERE a.name = 'infra-hub-api'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_roles r WHERE r.application_id = a.id AND r.name = 'ADMIN'
-  );
+ON CONFLICT (application_id, name) DO NOTHING;
 
 -- -----------------------------------------------------------------------------
 -- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
