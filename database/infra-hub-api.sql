@@ -1,6 +1,8 @@
 SELECT 'CREATE DATABASE infra_hub_api'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'infra_hub_api')\gexec
 
+\c infra_hub_api
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS infrastructure_operations_log (

@@ -1,6 +1,8 @@
 SELECT 'CREATE DATABASE ticket_hub_api'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'ticket_hub_api')\gexec
 
+\c ticket_hub_api
+
 CREATE TABLE IF NOT EXISTS database_management_tickets (
   id            SERIAL PRIMARY KEY,
   number        SERIAL UNIQUE,

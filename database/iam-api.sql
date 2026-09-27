@@ -1,6 +1,8 @@
 SELECT 'CREATE DATABASE iam_api'
 WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'iam_api')\gexec
 
+\c iam_api
+
 CREATE TABLE IF NOT EXISTS apps_applications (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(30)  NOT NULL,
