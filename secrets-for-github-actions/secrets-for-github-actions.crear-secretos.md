@@ -12,9 +12,11 @@ Todos los secretos se cargan igual: en el repositorio correspondiente, **Setting
 | `DOCKERHUB_TOKEN` | Los 5 repos de apps (no hace falta en `deploy-hub-api`) |
 | `KUBECONFIG_MICROK8S` | Solo `deploy-hub-api` |
 | `TS_OAUTH_CLIENT_ID` / `TS_OAUTH_SECRET` | Solo `deploy-hub-api` |
-| `IAM_DISPATCH_TOKEN` | `iam` **y** `iam-api` (cada uno con su propio secreto, mismo nombre) |
-| `TICKET_HUB_DISPATCH_TOKEN` | `ticket-hub` **y** `ticket-hub-api` (cada uno con su propio secreto, mismo nombre) |
-| `INFRA_HUB_DISPATCH_TOKEN` | Solo `infra-hub-api` |
+| `IAM_DISPATCH_TOKEN` | Solo `iam` |
+| `IAM_API_DISPATCH_TOKEN` | Solo `iam-api` |
+| `TICKET_HUB_DISPATCH_TOKEN` | Solo `ticket-hub` |
+| `TICKET_HUB_API_DISPATCH_TOKEN` | Solo `ticket-hub-api` |
+| `INFRA_HUB_API_DISPATCH_TOKEN` | Solo `infra-hub-api` |
 
 ## 1. Crear la cuenta de Docker Hub
 
@@ -62,7 +64,7 @@ La **cuenta** de Tailscale ya la creaste al configurar el servidor y microk8s (`
 
 Cada repo de app (frontend o backend) tiene un workflow de release que, después de pushear la imagen a Docker Hub, dispara el deploy real disparando un `workflow_dispatch` en el repo `deploy-hub-api` (ver `disparar-deploy-<app>.sh` en cada uno). El token por defecto que GitHub le da a cada workflow (`GITHUB_TOKEN`) solo tiene permisos dentro de su propio repositorio — no alcanza para disparar un workflow en otro repo (`deploy-hub-api`), así que hace falta un Personal Access Token propio.
 
-**Podés usar el mismo Personal Access Token para los 5 casos** (el permiso que necesita es siempre el mismo: poder disparar `workflow_dispatch` sobre `jtagram/deploy-hub-api`, que es un repo público) — simplemente lo vas a cargar varias veces, con nombres de secreto distintos, en cada repo.
+**Podés usar el mismo Personal Access Token para los 5 casos** (el permiso que necesita es siempre el mismo: poder disparar `workflow_dispatch` sobre `jtagram/deploy-hub-api`, que es un repo público) — simplemente lo vas a cargar varias veces, con un nombre de secreto distinto en cada repo (uno por repo, no por producto — así el nombre te dice sin ambigüedad a cuál de los 5 pertenece).
 
 ### Generar el Personal Access Token
 
@@ -76,9 +78,9 @@ Cada repo de app (frontend o backend) tiene un workflow de release que, después
 | Repo | Nombre del secreto |
 |---|---|
 | `iam` | `IAM_DISPATCH_TOKEN` |
-| `iam-api` | `IAM_DISPATCH_TOKEN` |
+| `iam-api` | `IAM_API_DISPATCH_TOKEN` |
 | `ticket-hub` | `TICKET_HUB_DISPATCH_TOKEN` |
-| `ticket-hub-api` | `TICKET_HUB_DISPATCH_TOKEN` |
-| `infra-hub-api` | `INFRA_HUB_DISPATCH_TOKEN` |
+| `ticket-hub-api` | `TICKET_HUB_API_DISPATCH_TOKEN` |
+| `infra-hub-api` | `INFRA_HUB_API_DISPATCH_TOKEN` |
 
-Notá que `iam`/`iam-api` usan el mismo *nombre* de secreto, y lo mismo `ticket-hub`/`ticket-hub-api` — pero como cada repo tiene su propio almacén de secretos en GitHub, hay que cargarlo por separado en cada uno (5 veces en total), aunque el valor del token sea idéntico en los 5.
+Cada repo tiene su propio almacén de secretos en GitHub, así que no hay colisión posible entre ellos — pero el nombre es distinto en cada uno (uno por repo, no por producto) para que, mirando solo el nombre, sepas sin ambigüedad a qué repo pertenece. Hay que cargarlo por separado en los 5 (mismo valor de token, 5 nombres distintos).

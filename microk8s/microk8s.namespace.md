@@ -40,3 +40,5 @@ microk8s kubectl get namespaces
 
 La salida debe incluir `iam`, `iam-api`, `infra-hub-api`, `ticket-hub`,
 `ticket-hub-api` y `databases`, todos con estado `Active`.
+
+También va a aparecer `microk8s-access` — no es un error ni algo de este paso, es el namespace del usuario restringido creado en `pcbox.microk8s-usuario-viewer-secretos.md` (paso anterior en el `README.md`). Junto con los namespaces por defecto del cluster (`default`, `kube-system`, `kube-public`, `kube-node-lease`), son los únicos que no corresponden a una app.
