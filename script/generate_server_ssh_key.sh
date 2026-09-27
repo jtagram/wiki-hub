@@ -67,6 +67,24 @@ fi
 
 PUBLIC_KEY_CONTENT="$(cat "${KEY_PATH}.pub")"
 
+SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10)
+
+# Chequeo de conectividad/autenticación previo, ANTES de intentar nada de
+# authorized_keys: si esto falla, el problema es de red/host/credenciales
+# (timeout, host inalcanzable, password incorrecto), no de permisos -- y
+# reintentar con sudo sobre la misma conexión rota no sirve de nada, solo
+# le pide al usuario una contraseña de sudo para nada. Sudo solo tiene
+# sentido si la conexión en sí funciona pero el comando remoto de
+# authorized_keys falla por falta de permisos.
+if ! connectivity_error="$(sshpass -p "$SSH_PASSWORD" ssh "${SSH_OPTS[@]}" \
+    "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" true 2>&1)"; then
+  echo "ERROR: no se pudo conectar a ${SERVER_SSH_USER}@${SERVER_SSH_HOST}." >&2
+  echo "$connectivity_error" >&2
+  echo "Revisá que el servidor esté encendido, conectado a Tailscale, y que SSH_PASSWORD sea correcta -- no es un problema de permisos, así que reintentar con sudo no lo va a arreglar." >&2
+  unset SSH_PASSWORD 2>/dev/null || true
+  exit 1
+fi
+
 REMOTE_SCRIPT='
 set -euo pipefail
 mkdir -p ~/.ssh
@@ -83,8 +101,6 @@ grep -qxF "$NEW_KEY" ~/.ssh/authorized_keys || printf "%s\n" "$NEW_KEY" >> ~/.ss
 # simple espacio antes de mandarlos al shell remoto, lo que rompería este
 # script (tiene saltos de línea y comillas) si se pasara en varias palabras.
 REMOTE_CMD_NO_SUDO="bash -c $(shquote "$REMOTE_SCRIPT")"
-
-SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10)
 
 if sshpass -p "$SSH_PASSWORD" ssh "${SSH_OPTS[@]}" \
     "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" "$REMOTE_CMD_NO_SUDO" <<< "$PUBLIC_KEY_CONTENT"; then

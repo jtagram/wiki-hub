@@ -2,6 +2,8 @@
 
 Configuración inicial de los secretos utilizados por los servicios del cluster MicroK8s.
 
+Antes de empezar, tené a mano los valores generados por `wiki-hub/script/main.sh` (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `SERVER_SSH_HOST`, `SERVER_SSH_USER`, `SERVER_SSH_PRIVATE_KEY`, `CLIENT_ID`, `CLIENT_SECRET`) — son los que vas a usar para reemplazar los placeholders en los comandos `kubectl create secret` de este documento. Si todavía no lo corriste, ejecutalo ahora (`cd wiki-hub/script && ./main.sh`) y guardá su salida antes de seguir.
+
 ## 1. Conectarse al servidor
 
 Desde la PC cliente, conéctate al servidor `pcbox` mediante SSH usando la clave privada configurada en `pcbox.bootstrap.md`:
