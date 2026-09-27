@@ -61,6 +61,8 @@ microk8s kubectl create secret generic jwt-keys \
   --from-file=JWT_PUBLIC_KEY='<ruta-a-jwt_public.pem>'
 ```
 
+Las variables no sensibles (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `JWT_EXPIRES_IN`, `PORT`, `LOG_LEVEL`, `IAM_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
+
 ### 4.2. `infra-hub-api` (namespace `infra-hub-api`)
 
 Ver [`infra-hub-api/README.md`](../../infra-hub-api/README.md) para la lista completa de variables y cómo obtener cada valor.
@@ -83,6 +85,8 @@ microk8s kubectl create secret generic server-ssh-key \
   --from-literal=SERVER_SSH_USER='<usuario-ssh>' \
   --from-file=SERVER_SSH_PRIVATE_KEY='<ruta-a-la-clave-privada>'
 ```
+
+Las variables no sensibles (`DB_HOST`, `DB_PORT`, `DB_NAME`, `PORT`, `LOG_LEVEL`, `IAM_API_URL`, `INFRA_HUB_API_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
 
 ### 4.3. `ticket-hub-api` (namespace `ticket-hub-api`)
 
@@ -113,6 +117,8 @@ user humano. El `clienteSecret` solo se muestra una vez, al crear el
 apps-user; guardalo en ese momento. `ticket-hub-api` se loguea con estas
 credenciales (`POST /apps-users/login`) para obtener el JWT que usa en cada
 llamada a `infra-hub-api`.
+
+Las variables no sensibles (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `PORT`, `LOG_LEVEL`, `INFRA_HUB_API_URL`, `IAM_API_URL`, `TICKET_HUB_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
 
 ### 4.4. `iam` (namespace `iam`)
 
