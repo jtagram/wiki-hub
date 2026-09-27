@@ -14,7 +14,7 @@ ssh -i deploy_key jhon@IP_TAILSCALE
 
 Todos los comandos siguientes se ejecutan dentro de la sesión SSH del servidor `pcbox`.
 
-Antes de crear el secreto, asegúrate de que los namespaces ya existan. Si todavía no los creaste, sigue el instructivo de `pcbox.namespace.md`.
+Antes de crear el secreto, asegúrate de que los namespaces ya existan. Si todavía no los creaste, sigue el instructivo de `microk8s.namespace.md`.
 
 ## 2. Crear el secreto de PostgreSQL
 
@@ -110,7 +110,7 @@ microk8s kubectl create secret generic ticket-hub-api-service-credentials \
   --from-literal=CLIENT_SECRET='<clienteSecret-real>'
 ```
 
-Las variables no sensibles (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `PORT`, `LOG_LEVEL`, `INFRA_HUB_API_URL`, `IAM_API_URL`, `TICKET_HUB_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
+Las variables no sensibles (`DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `PORT`, `LOG_LEVEL`, `INFRA_HUB_API_URL`, `IAM_API_URL`, `TICKET_HUB_APPLICATION_NAME`, `INFRA_HUB_API_APPLICATION_NAME`) van como env var literal directamente en `deployment.yaml`, no como Secret.
 
 ### 4.4. `iam` (namespace `iam`)
 
