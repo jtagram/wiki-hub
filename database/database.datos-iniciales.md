@@ -121,6 +121,8 @@ Con el archivo `datos-iniciales.sql` ya creado y sus placeholders reemplazados, 
 cat datos-iniciales.sql | microk8s kubectl exec -i -n databases deploy/postgres -- psql -U <POSTGRES_USER-real> -d iam_api -v ON_ERROR_STOP=1
 ```
 
+`<POSTGRES_USER-real>` es el mismo `POSTGRES_USER` generado por `wiki-hub/script/main.sh` y ya cargado en el Secret `postgres-credentials` (`microk8s/microk8s.secrets.md`, sección 2).
+
 ## 3. Verificar
 
 ```bash
@@ -144,3 +146,5 @@ JOIN apps_applications a ON a.id = aur.application_id
 JOIN apps_roles r ON r.id = aur.role_id;
 "
 ```
+
+Tiene que aparecer `ticket-hub-api` dos veces: una fila con `infra-hub-api`/`ADMIN` y otra con `ticket-hub`/`ADMIN` — confirma que el apps-user de servicio tiene acceso a las dos aplicaciones.
