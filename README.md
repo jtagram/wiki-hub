@@ -12,5 +12,6 @@ Seguí estos instructivos **en este orden** — cada uno da por sentado que los 
 6. [`repositories/repositories.clonar-organizacion.md`](repositories/repositories.clonar-organizacion.md) — Clonar los 7 repositorios de la organización `jtagram` a tu propia organización de GitHub.
 7. [`secrets-for-github-actions/secrets-for-github-actions.crear-secretos.md`](secrets-for-github-actions/secrets-for-github-actions.crear-secretos.md) — Crear los secretos que usan los workflows de GitHub Actions (Docker Hub, `KUBECONFIG_MICROK8S`, OAuth de Tailscale, y los `DISPATCH_TOKEN` de cada app) en tus propios repositorios.
 8. [`database/database.crear-bases.md`](database/database.crear-bases.md) — Desplegar el servidor de PostgreSQL en el cluster y crear las 3 bases de datos (`iam_api`, `infra_hub_api`, `ticket_hub_api`) con sus tablas.
+9. [`database/database.datos-iniciales.md`](database/database.datos-iniciales.md) — Insertar el primer usuario ADMIN (con acceso a `iam` y a `ticket-hub`) y el apps-user de servicio de `ticket-hub-api` (con rol ADMIN sobre `infra-hub-api` y `ticket-hub`).
 
-Con estos 8 pasos completos, el cluster tiene todo lo que las apps necesitan para arrancar (namespaces, Secrets, base de datos) y los repositorios están listos para disparar sus workflows de release/deploy.
+Con estos 9 pasos completos, el cluster tiene todo lo que las apps necesitan para arrancar (namespaces, Secrets, base de datos) y las cuentas mínimas para empezar a usar el sistema, y los repositorios están listos para disparar sus workflows de release/deploy.
