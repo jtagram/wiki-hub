@@ -12,7 +12,7 @@ ssh -i deploy_key jhon@IP_TAILSCALE
 
 ## 1. El SQL
 
-Creá un archivo `datos-iniciales.sql` (en el servidor, o en tu PC cliente si después lo vas a copiar) con el siguiente contenido. Antes de usarlo, reemplazá cada placeholder `<...-real>` por el valor real correspondiente, generado por `wiki-hub/script/main.sh`:
+Creá un archivo `datos-iniciales.sql`. Antes de usarlo, reemplazá cada placeholder `<...-real>` por el valor real correspondiente, generado por `wiki-hub/script/main.sh`:
 
 - `<ADMIN_NAME-real>` / `<ADMIN_LASTNAME-real>` / `<ADMIN_EMAIL-real>` / `<ADMIN_PASSWORD_HASH-real>` → `ADMIN_NAME` / `ADMIN_LASTNAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` de la salida del script.
 - `<CLIENT_SECRET_HASH-real>` → `CLIENT_SECRET_HASH` de la misma salida.
@@ -115,13 +115,11 @@ WHERE au.cliente_id = 'ticket-hub-api'
 
 ## 2. Cómo correrlo
 
-Igual que en `database.crear-bases.md`: conectado por SSH a `pcbox`, con este archivo en el mismo directorio (`wiki-hub/database/`), después de reemplazar los placeholders:
+Con el archivo `datos-iniciales.sql` ya creado y sus placeholders reemplazados, ejecutá:
 
 ```bash
 cat datos-iniciales.sql | microk8s kubectl exec -i -n databases deploy/postgres -- psql -U <POSTGRES_USER-real> -d iam_api -v ON_ERROR_STOP=1
 ```
-
-(a diferencia de los 3 archivos de `database.crear-bases.md`, este SQL no crea ninguna base ni se conecta con `\c` — asume que ya estás en `iam_api`, por eso el `-d iam_api` explícito en el comando).
 
 ## 3. Verificar
 
