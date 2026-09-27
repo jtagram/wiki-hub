@@ -2,24 +2,21 @@
 
 Instructivo para insertar, en la base `iam_api`, los datos mínimos que hacen falta para poder usar el sistema por primera vez:
 
-- El primer usuario **ADMIN** de la aplicación `iam` (para poder loguearte en el frontend `iam` y empezar a gestionar todo lo demás desde ahí).
-- El primer usuario **ADMIN** de la aplicación `ticket-hub`.
+- El primer usuario **ADMIN**, con acceso tanto a `iam` como a `ticket-hub` (mismas credenciales para loguearse en los dos frontends) — nombre, apellido, email y hash de la contraseña generados por `wiki-hub/script/generate_admin_user_credentials.sh` (parte de `main.sh`).
 - El primer **apps-user** de `ticket-hub-api`, con rol ADMIN sobre `infra-hub-api` y sobre `ticket-hub` — es el mismo `CLIENT_ID`/`CLIENT_SECRET` que generó `wiki-hub/script/main.sh` (ver `secrets-for-github-actions`/`microk8s.secrets.md`, Secret `ticket-hub-api-service-credentials`) y que `ticket-hub-api` usa para loguearse contra `iam-api` (`POST /apps-users/login`).
 
 Sin esto, `database.crear-bases.md` te deja las tablas creadas pero completamente vacías — no hay ninguna cuenta con la que entrar a nada.
 
-Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya tienen que existir).
+Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya tienen que existir) y `wiki-hub/script/main.sh` (con la salida a mano: `ADMIN_NAME`, `ADMIN_LASTNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `CLIENT_SECRET`).
 
-## 1. Por qué hace falta generar hashes antes de insertar
+## 1. El `cliente_secret` del apps-user también necesita su hash
 
-Ni las contraseñas de `internal_users` ni el `cliente_secret` de `apps_users` se guardan en texto plano — `iam-api` los compara con `bcrypt.compare()` contra un hash `bcrypt` (10 rounds). Si insertás la contraseña tal cual por SQL, el login nunca va a coincidir. Hay que generar el hash primero, con el mismo `bcrypt` que ya está instalado como dependencia de `iam-api`:
+`internal_users.password` ya te lo da hasheado `generate_admin_user_credentials.sh` (usa el mismo `bcrypt` de `iam-api`, 10 rounds). Pero `apps_users.cliente_secret` no lo genera ningún script todavía — `generate_client_credentials.sh` solo te da el `CLIENT_SECRET` en texto plano (lo necesitás así, sin hashear, para el Secret real que consume `ticket-hub-api`). Para el `INSERT` de más abajo hace falta hashearlo aparte, con el mismo criterio:
 
 ```bash
 cd iam-api
-node -e "console.log(require('bcrypt').hashSync(process.argv[1], 10))" '<contraseña-real>'
+node -e "console.log(require('bcrypt').hashSync(process.argv[1], 10))" '<CLIENT_SECRET-real>'
 ```
-
-Corré esto una vez por cada contraseña/secret que necesites (el admin de `iam`, el de `ticket-hub`, y el `CLIENT_SECRET` de `ticket-hub-api`) y guardá cada hash que te devuelve — son los que van a reemplazar `<hash-bcrypt-real>` en el SQL de abajo.
 
 ## 2. El SQL
 
@@ -28,8 +25,8 @@ Todo esto es idempotente (se puede correr más de una vez sin duplicar nada), po
 ```sql
 -- =============================================================================
 -- Datos iniciales de iam-api: aplicaciones, rol ADMIN de cada una, el primer
--- usuario humano ADMIN de "iam" y de "ticket-hub", y el primer apps-user de
--- servicio (ticket-hub-api -> infra-hub-api).
+-- usuario humano ADMIN (con acceso a "iam" y a "ticket-hub"), y el primer
+-- apps-user de servicio (ticket-hub-api -> infra-hub-api y ticket-hub).
 -- Correr contra la base "iam_api".
 -- =============================================================================
 
@@ -76,18 +73,18 @@ WHERE a.name = 'infra-hub-api'
   );
 
 -- -----------------------------------------------------------------------------
--- 3) Primer usuario ADMIN de "iam"
---    email/password tienen que coincidir con lo que vas a usar para loguearte
---    en el frontend iam. password = hash bcrypt generado en el paso 1.
+-- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
+--    name/lastname/email/password salen tal cual de generate_admin_user_credentials.sh
+--    (ADMIN_NAME, ADMIN_LASTNAME, ADMIN_EMAIL, ADMIN_PASSWORD_HASH).
 -- -----------------------------------------------------------------------------
 INSERT INTO internal_users (name, lastname, email, password)
-VALUES ('<nombre-real>', '<apellido-real>', '<email-real>', '<hash-bcrypt-real>')
+VALUES ('<ADMIN_NAME-real>', '<ADMIN_LASTNAME-real>', '<ADMIN_EMAIL-real>', '<ADMIN_PASSWORD_HASH-real>')
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
 SELECT u.id, a.id, r.id
 FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = '<email-real>'
+WHERE u.email = '<ADMIN_EMAIL-real>'
   AND a.name = 'iam'
   AND r.application_id = a.id AND r.name = 'ADMIN'
   AND NOT EXISTS (
@@ -95,20 +92,10 @@ WHERE u.email = '<email-real>'
     WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
   );
 
--- -----------------------------------------------------------------------------
--- 4) Primer usuario ADMIN de "ticket-hub"
---    Si querés que sea la MISMA persona que el admin de "iam", usá el mismo
---    email acá abajo -- el INSERT de internal_users es un no-op gracias al
---    ON CONFLICT, y solo se agrega el rol nuevo sobre "ticket-hub".
--- -----------------------------------------------------------------------------
-INSERT INTO internal_users (name, lastname, email, password)
-VALUES ('<nombre-real>', '<apellido-real>', '<email-real>', '<hash-bcrypt-real>')
-ON CONFLICT (email) DO NOTHING;
-
 INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
 SELECT u.id, a.id, r.id
 FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = '<email-real>'
+WHERE u.email = '<ADMIN_EMAIL-real>'
   AND a.name = 'ticket-hub'
   AND r.application_id = a.id AND r.name = 'ADMIN'
   AND NOT EXISTS (
@@ -117,7 +104,7 @@ WHERE u.email = '<email-real>'
   );
 
 -- -----------------------------------------------------------------------------
--- 5) apps-user de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
+-- 4) apps-user de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
 --    cliente_id tiene que ser exactamente "ticket-hub-api" (coincide con el
 --    CLIENT_ID hardcodeado en generate_client_credentials.sh). cliente_secret
 --    es el hash bcrypt del CLIENT_SECRET real generado por wiki-hub/script/main.sh.
@@ -173,7 +160,7 @@ JOIN apps_roles r ON r.id = ir.role_id;
 "
 ```
 
-Tiene que aparecer una fila por cada admin humano que insertaste, con la aplicación y el rol `ADMIN`. Para confirmar el apps-user de servicio:
+Tiene que aparecer una fila por cada aplicación a la que le diste acceso al admin (`iam` y `ticket-hub`), con el rol `ADMIN` en ambas. Para confirmar el apps-user de servicio:
 
 ```bash
 microk8s kubectl exec -i -n databases deploy/postgres -- psql -U <POSTGRES_USER-real> -d iam_api -c "

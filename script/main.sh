@@ -33,6 +33,10 @@ echo
 echo "=== Generando CLIENT_ID / CLIENT_SECRET ==="
 . "$SCRIPT_DIR/generate_client_credentials.sh"
 
+echo
+echo "=== Datos del primer usuario ADMIN (iam + ticket-hub) ==="
+. "$SCRIPT_DIR/generate_admin_user_credentials.sh"
+
 # Bloque de impresión final aislado en su propia función a propósito: el día
 # que esto se reemplace por `kubectl create secret ...` (o similar), alcanza
 # con tocar esta función, sin afectar la generación de secretos de arriba.
@@ -54,6 +58,11 @@ print_summary() {
   echo
   echo "CLIENT_ID=$CLIENT_ID"
   echo "CLIENT_SECRET=$CLIENT_SECRET"
+  echo
+  echo "ADMIN_NAME=$ADMIN_NAME"
+  echo "ADMIN_LASTNAME=$ADMIN_LASTNAME"
+  echo "ADMIN_EMAIL=$ADMIN_EMAIL"
+  echo "ADMIN_PASSWORD_HASH=$ADMIN_PASSWORD_HASH"
   echo
   echo "========================================"
 }
