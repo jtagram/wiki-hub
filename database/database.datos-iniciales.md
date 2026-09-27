@@ -6,16 +6,7 @@ Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya 
 
 ## 1. El SQL
 
-Todo esto es idempotente (se puede correr más de una vez sin duplicar nada), porque ninguna de estas tablas tiene una restricción `UNIQUE` sobre `name` (`apps_applications`, `apps_roles`) — hay que chequear "si no existe" a mano con `WHERE NOT EXISTS` en vez de `ON CONFLICT`.
-
 ```sql
--- =============================================================================
--- Datos iniciales de iam-api: aplicaciones, rol ADMIN de cada una, el primer
--- usuario humano ADMIN (con acceso a "iam" y a "ticket-hub"), y el primer
--- apps-user de servicio (ticket-hub-api -> infra-hub-api y ticket-hub).
--- Correr contra la base "iam_api".
--- =============================================================================
-
 -- -----------------------------------------------------------------------------
 -- 1) Aplicaciones (si ya las cargaste por otro medio, esto no duplica nada)
 -- -----------------------------------------------------------------------------

@@ -5,7 +5,7 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'iam_api')\gexec
 
 CREATE TABLE IF NOT EXISTS apps_applications (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(30)  NOT NULL,
+    name        VARCHAR(30)  NOT NULL UNIQUE,
     description VARCHAR(200) NOT NULL
 );
 
@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS apps_roles (
     id             SERIAL PRIMARY KEY,
     application_id INTEGER      NOT NULL REFERENCES apps_applications(id),
     name           VARCHAR(30)  NOT NULL,
-    description    VARCHAR(200) NOT NULL
+    description    VARCHAR(200) NOT NULL,
+    UNIQUE (application_id, name)
 );
 
 CREATE TABLE IF NOT EXISTS apps_users_roles (
