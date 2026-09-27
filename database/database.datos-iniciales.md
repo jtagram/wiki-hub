@@ -4,7 +4,7 @@ Instructivo para insertar, en la base `iam_api`, los datos mínimos que hacen fa
 
 - El primer usuario **ADMIN** de la aplicación `iam` (para poder loguearte en el frontend `iam` y empezar a gestionar todo lo demás desde ahí).
 - El primer usuario **ADMIN** de la aplicación `ticket-hub`.
-- El primer **apps-user** de `ticket-hub-api`, con rol ADMIN sobre `infra-hub-api` — es el mismo `CLIENT_ID`/`CLIENT_SECRET` que generó `wiki-hub/script/main.sh` (ver `secrets-for-github-actions`/`microk8s.secrets.md`, Secret `infra-hub-api-service-credentials`) y que `ticket-hub-api` usa para loguearse contra `iam-api` (`POST /apps-users/login`).
+- El primer **apps-user** de `ticket-hub-api`, con rol ADMIN sobre `infra-hub-api` y sobre `ticket-hub` — es el mismo `CLIENT_ID`/`CLIENT_SECRET` que generó `wiki-hub/script/main.sh` (ver `secrets-for-github-actions`/`microk8s.secrets.md`, Secret `ticket-hub-api-service-credentials`) y que `ticket-hub-api` usa para loguearse contra `iam-api` (`POST /apps-users/login`).
 
 Sin esto, `database.crear-bases.md` te deja las tablas creadas pero completamente vacías — no hay ninguna cuenta con la que entrar a nada.
 
@@ -117,10 +117,12 @@ WHERE u.email = '<email-real>'
   );
 
 -- -----------------------------------------------------------------------------
--- 5) apps-user de servicio: ticket-hub-api -> infra-hub-api
+-- 5) apps-user de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
 --    cliente_id tiene que ser exactamente "ticket-hub-api" (coincide con el
 --    CLIENT_ID hardcodeado en generate_client_credentials.sh). cliente_secret
 --    es el hash bcrypt del CLIENT_SECRET real generado por wiki-hub/script/main.sh.
+--    Se le asigna rol ADMIN sobre las dos aplicaciones: "infra-hub-api" y
+--    "ticket-hub" (esta última ya insertada en la sección 2).
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<hash-bcrypt-del-CLIENT_SECRET>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
@@ -131,6 +133,17 @@ SELECT au.id, a.id, r.id
 FROM apps_users au, apps_applications a, apps_roles r
 WHERE au.cliente_id = 'ticket-hub-api'
   AND a.name = 'infra-hub-api'
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_roles aur
+    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
+  );
+
+INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
+SELECT au.id, a.id, r.id
+FROM apps_users au, apps_applications a, apps_roles r
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name = 'ticket-hub'
   AND r.application_id = a.id AND r.name = 'ADMIN'
   AND NOT EXISTS (
     SELECT 1 FROM apps_users_roles aur

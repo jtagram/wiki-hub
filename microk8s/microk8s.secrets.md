@@ -101,10 +101,10 @@ microk8s kubectl create secret generic postgres-credentials \
   --from-literal=POSTGRES_PASSWORD='<password-real>'
 ```
 
-**`infra-hub-api-service-credentials`** (`CLIENT_ID`, `CLIENT_SECRET`):
+**`ticket-hub-api-service-credentials`** (`CLIENT_ID`, `CLIENT_SECRET`):
 
 ```bash
-microk8s kubectl create secret generic infra-hub-api-service-credentials \
+microk8s kubectl create secret generic ticket-hub-api-service-credentials \
   -n ticket-hub-api \
   --from-literal=CLIENT_ID='<clienteId-real>' \
   --from-literal=CLIENT_SECRET='<clienteSecret-real>'
