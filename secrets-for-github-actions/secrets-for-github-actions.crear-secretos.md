@@ -68,10 +68,17 @@ Cada repo de app (frontend o backend) tiene un workflow de release que, después
 
 ### Generar el Personal Access Token
 
-1. Entrá a [github.com/settings/tokens](https://github.com/settings/tokens) (o `github.com/settings/personal-access-tokens` para uno *fine-grained*).
-2. **Generate new token (classic)**.
-3. Scopes necesarios: `public_repo` (alcanza porque `deploy-hub-api` es público) y `workflow` (necesario para disparar/leer runs de Actions).
-4. Ponele una expiración razonable y generalo. Copiá el token apenas se muestra — no se puede volver a ver.
+Usá un token **fine-grained**, acotado solo a `deploy-hub-api` — no un *classic* con scope `public_repo` (eso daría acceso a todos tus repos públicos, muchos más permisos de los que este token necesita):
+
+1. Entrá a GitHub → **Settings** (de tu cuenta) → **Developer settings** → **Personal access tokens** → **Fine-grained tokens** → **Generate new token**.
+2. **Resource owner**: la cuenta/organización dueña de `deploy-hub-api` — **no** la del repo de app donde estás cargando el secreto (siempre apunta a `deploy-hub-api`, sin importar desde cuál de los 5 repos estés generando el token).
+3. **Repository access**: Only select repositories → `deploy-hub-api`.
+4. **Permissions** → Repository permissions:
+   - `Actions`: Read and write (necesario para disparar el workflow y leer el estado de la corrida).
+   - `Contents`: Read-only (para resolver el ref).
+5. Generá el token y copialo apenas se muestre — no se puede volver a ver.
+
+> Si el dispatch falla con `HTTP 403: Resource not accessible by personal access token`, típicamente el token no tiene `Actions: Read and write` sobre `deploy-hub-api` — revisá el paso 4.
 
 ### Cargar el token en cada repo
 

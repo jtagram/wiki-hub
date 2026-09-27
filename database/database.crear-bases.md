@@ -24,10 +24,25 @@ Este es el mismo Secret `postgres-credentials` del namespace `databases` que ya 
 
 ## 3. Traer los archivos de este directorio al servidor
 
-Todo lo que sigue (el manifiesto de Postgres y los 3 SQL) son archivos de este mismo directorio (`wiki-hub/database/`) — traé este repo al servidor si todavía no lo tenés ahí:
+Todo lo que sigue (el manifiesto de Postgres y los 3 SQL) son archivos de este mismo directorio (`wiki-hub/database/`), en tu clon local del repo. Parate en esa carpeta y mandalos por `scp`, desde tu máquina (no desde el servidor). Ajustá `-i deploy_key` a la ruta real donde tengas tu clave privada (la misma del paso 3 de `pcbox/pcbox.bootstrap.md`):
 
 ```bash
-git clone https://github.com/jtagram/wiki-hub.git
+cd wiki-hub/database
+
+ssh -i deploy_key jhon@IP_TAILSCALE "mkdir -p ~/wiki-hub/database"
+
+scp -i deploy_key \
+  postgres.yaml \
+  iam-api.sql \
+  infra-hub-api.sql \
+  ticket-hub-api.sql \
+  jhon@IP_TAILSCALE:~/wiki-hub/database/
+```
+
+Después conectate por SSH y entrá a esa carpeta:
+
+```bash
+ssh -i deploy_key jhon@IP_TAILSCALE
 cd wiki-hub/database
 ```
 
