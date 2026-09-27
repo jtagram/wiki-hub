@@ -97,6 +97,23 @@ microk8s kubectl create secret generic postgres-credentials \
   --from-literal=POSTGRES_PASSWORD='<password-real>'
 ```
 
+**`infra-hub-api-service-credentials`** (`CLIENT_ID`, `CLIENT_SECRET`):
+
+```bash
+microk8s kubectl create secret generic infra-hub-api-service-credentials \
+  -n ticket-hub-api \
+  --from-literal=CLIENT_ID='<clienteId-real>' \
+  --from-literal=CLIENT_SECRET='<clienteSecret-real>'
+```
+
+Credenciales de un apps-user de `iam-api` (`POST /apps-users`, admin-only)
+con rol ADMIN sobre la aplicación "infra-hub-api" — es el mecanismo real de
+`iam-api` para credenciales de servicio (machine-to-machine), no un internal
+user humano. El `clienteSecret` solo se muestra una vez, al crear el
+apps-user; guardalo en ese momento. `ticket-hub-api` se loguea con estas
+credenciales (`POST /apps-users/login`) para obtener el JWT que usa en cada
+llamada a `infra-hub-api`.
+
 ### 4.4. `iam` (namespace `iam`)
 
 Ver [`iam/README.md`](../../iam/README.md) para la lista completa de variables y cómo obtener cada valor. `IAM_API_URL` e `IAM_APPLICATION_NAME` van como env var literal directamente en `deployment.yaml`, no como Secret — este namespace no necesita un Secret propio.
