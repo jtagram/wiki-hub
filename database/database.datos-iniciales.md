@@ -2,23 +2,9 @@
 
 Instructivo para insertar, en la base `iam_api`, los datos mínimos que hacen falta para poder usar el sistema por primera vez:
 
-- El primer usuario **ADMIN**, con acceso tanto a `iam` como a `ticket-hub` (mismas credenciales para loguearse en los dos frontends) — nombre, apellido, email y hash de la contraseña generados por `wiki-hub/script/generate_admin_user_credentials.sh` (parte de `main.sh`).
-- El primer **apps-user** de `ticket-hub-api`, con rol ADMIN sobre `infra-hub-api` y sobre `ticket-hub` — es el mismo `CLIENT_ID`/`CLIENT_SECRET` que generó `wiki-hub/script/main.sh` (ver `secrets-for-github-actions`/`microk8s.secrets.md`, Secret `ticket-hub-api-service-credentials`) y que `ticket-hub-api` usa para loguearse contra `iam-api` (`POST /apps-users/login`).
+Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya tienen que existir) y `wiki-hub/script/main.sh` (con la salida a mano: `ADMIN_NAME`, `ADMIN_LASTNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `CLIENT_SECRET_HASH`).
 
-Sin esto, `database.crear-bases.md` te deja las tablas creadas pero completamente vacías — no hay ninguna cuenta con la que entrar a nada.
-
-Requisito: haber corrido `database.crear-bases.md` (las 3 bases y sus tablas ya tienen que existir) y `wiki-hub/script/main.sh` (con la salida a mano: `ADMIN_NAME`, `ADMIN_LASTNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`, `CLIENT_SECRET`).
-
-## 1. El `cliente_secret` del apps-user también necesita su hash
-
-`internal_users.password` ya te lo da hasheado `generate_admin_user_credentials.sh` (usa el mismo `bcrypt` de `iam-api`, 10 rounds). Pero `apps_users.cliente_secret` no lo genera ningún script todavía — `generate_client_credentials.sh` solo te da el `CLIENT_SECRET` en texto plano (lo necesitás así, sin hashear, para el Secret real que consume `ticket-hub-api`). Para el `INSERT` de más abajo hace falta hashearlo aparte, con el mismo criterio:
-
-```bash
-cd iam-api
-node -e "console.log(require('bcrypt').hashSync(process.argv[1], 10))" '<CLIENT_SECRET-real>'
-```
-
-## 2. El SQL
+## 1. El SQL
 
 Todo esto es idempotente (se puede correr más de una vez sin duplicar nada), porque ninguna de estas tablas tiene una restricción `UNIQUE` sobre `name` (`apps_applications`, `apps_roles`) — hay que chequear "si no existe" a mano con `WHERE NOT EXISTS` en vez de `ON CONFLICT`.
 
@@ -107,12 +93,12 @@ WHERE u.email = '<ADMIN_EMAIL-real>'
 -- 4) apps-user de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
 --    cliente_id tiene que ser exactamente "ticket-hub-api" (coincide con el
 --    CLIENT_ID hardcodeado en generate_client_credentials.sh). cliente_secret
---    es el hash bcrypt del CLIENT_SECRET real generado por wiki-hub/script/main.sh.
+--    es CLIENT_SECRET_HASH tal cual lo generó wiki-hub/script/main.sh.
 --    Se le asigna rol ADMIN sobre las dos aplicaciones: "infra-hub-api" y
 --    "ticket-hub" (esta última ya insertada en la sección 2).
 -- -----------------------------------------------------------------------------
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
-VALUES ('ticket-hub-api', '<hash-bcrypt-del-CLIENT_SECRET>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
+VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH-real>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
 
 INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
@@ -138,7 +124,7 @@ WHERE au.cliente_id = 'ticket-hub-api'
   );
 ```
 
-## 3. Cómo correrlo
+## 2. Cómo correrlo
 
 Igual que en `database.crear-bases.md`: conectado por SSH a `pcbox`, con este archivo en el mismo directorio (`wiki-hub/database/`), después de reemplazar los placeholders:
 
@@ -148,7 +134,7 @@ cat datos-iniciales.sql | microk8s kubectl exec -i -n databases deploy/postgres 
 
 (a diferencia de los 3 archivos de `database.crear-bases.md`, este SQL no crea ninguna base ni se conecta con `\c` — asume que ya estás en `iam_api`, por eso el `-d iam_api` explícito en el comando).
 
-## 4. Verificar
+## 3. Verificar
 
 ```bash
 microk8s kubectl exec -i -n databases deploy/postgres -- psql -U <POSTGRES_USER-real> -d iam_api -c "

@@ -58,6 +58,7 @@ print_summary() {
   echo
   echo "CLIENT_ID=$CLIENT_ID"
   echo "CLIENT_SECRET=$CLIENT_SECRET"
+  echo "CLIENT_SECRET_HASH=$CLIENT_SECRET_HASH"
   echo
   echo "ADMIN_NAME=$ADMIN_NAME"
   echo "ADMIN_LASTNAME=$ADMIN_LASTNAME"

@@ -18,7 +18,8 @@ Es interactivo: va a pedir `POSTGRES_USER`, `SERVER_SSH_HOST`,
 `SSH_PASSWORD`, si hace falta `SUDO_PASSWORD`, y los datos del primer
 usuario ADMIN (nombre, apellido, email y contraseña). Al final imprime un
 resumen con todos los secretos generados (contraseñas, claves RSA/ed25519,
-credenciales de cliente, hash de la contraseña del admin).
+credenciales de cliente, hash de la contraseña del admin y del
+`CLIENT_SECRET`).
 
 Cada script individual (`generate_postgres_secrets.sh`,
 `generate_jwt_keys.sh`, `configure_server_ssh_info.sh`,
@@ -37,9 +38,10 @@ sourceados por `main.sh`.
   pública al servidor. Debian/Ubuntu: `sudo apt install sshpass`. Fedora:
   `sudo dnf install sshpass`.
 - `node` + el `bcrypt` de `iam-api` ya instalado (`npm install` corrido ahí)
-  — `generate_admin_user_credentials.sh` lo usa para calcular el hash de la
-  contraseña del admin con la misma librería que `iam-api` usa para
-  validarla al loguearse.
+  — `generate_admin_user_credentials.sh` y `generate_client_credentials.sh`
+  lo usan para calcular, respectivamente, el hash de la contraseña del admin
+  y del `CLIENT_SECRET`, con la misma librería que `iam-api` usa para
+  validarlos al loguearse.
 
 ## `generated/`
 
