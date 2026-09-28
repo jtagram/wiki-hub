@@ -20,3 +20,9 @@ Seguí estos instructivos **en este orden** — cada uno da por sentado que los 
 14. [`first-deploy/first-deploy.iam-api.md`](../first-deploy/first-deploy.iam-api.md) — Primer deploy de las 5 apps (`iam`, `iam-api`, `infra-hub-api`, `ticket-hub`, `ticket-hub-api`): disparar el release con las versiones correctas y verificar que el rollout quedó arriba.
 
 Con estos 14 pasos completos, el cluster tiene todo lo que las apps necesitan para arrancar (namespaces, Secrets, base de datos), las cuentas mínimas para empezar a usar el sistema, y las 5 apps corriendo por primera vez en microk8s a través de sus workflows de release/deploy.
+
+## Opcional: acceder a `iam` y `ticket-hub` desde una PC cliente
+
+Los pasos anteriores dejan `iam` y `ticket-hub` corriendo, pero solo alcanzables dentro del cluster (Service `ClusterIP`, sin `Ingress`). Para entrar desde una PC cliente de la tailnet con una URL propia y HTTPS:
+
+15. [`acceso-externo/acceso-externo.tailscale-operator.md`](../acceso-externo/acceso-externo.tailscale-operator.md) — Instalar el Tailscale Operator en el cluster y crear el `Ingress` de `iam` y `ticket-hub` para acceder por `https://iam.tu-tailnet.ts.net` y `https://ticket-hub.tu-tailnet.ts.net`.
