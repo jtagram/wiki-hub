@@ -58,3 +58,19 @@ CREATE TABLE IF NOT EXISTS internal_users_applications (
     internal_user_id INTEGER NOT NULL REFERENCES internal_users(id),
     application_id   INTEGER NOT NULL REFERENCES apps_applications(id)
 );
+
+CREATE TABLE IF NOT EXISTS internal_users_connections (
+    id                         SERIAL PRIMARY KEY,
+    internal_user_id           INTEGER NOT NULL REFERENCES internal_users(id),
+    origin_application_id      INTEGER NOT NULL REFERENCES apps_applications(id),
+    destination_application_id INTEGER NOT NULL REFERENCES apps_applications(id),
+    UNIQUE (internal_user_id, origin_application_id, destination_application_id)
+);
+
+CREATE TABLE IF NOT EXISTS apps_users_connections (
+    id                         SERIAL PRIMARY KEY,
+    app_user_id                INTEGER NOT NULL REFERENCES apps_users(id),
+    origin_application_id      INTEGER NOT NULL REFERENCES apps_applications(id),
+    destination_application_id INTEGER NOT NULL REFERENCES apps_applications(id),
+    UNIQUE (app_user_id, origin_application_id, destination_application_id)
+);
