@@ -1,6 +1,6 @@
 # Inicializar los valores en las bases de datos de los 3 ambientes
 
-Inserta en la base `iam_api` de cada VM los datos mínimos para usar el sistema por primera vez: aplicaciones, rol `ADMIN`, primer usuario administrador y la cuenta de servicio de `ticket-hub-api`.
+Inserta en la base `iam_api` de cada VM los datos mínimos para usar el sistema por primera vez: aplicaciones (frontends y APIs), rol `ADMIN`, primer usuario administrador con sus accesos y conexiones y la cuenta de servicio de `ticket-hub-api`.
 
 Necesitas:
 
@@ -52,6 +52,14 @@ INSERT INTO apps_applications (name, description)
 VALUES ('infra-hub-api', 'Ejecucion de operaciones de infraestructura')
 ON CONFLICT (name) DO NOTHING;
 
+INSERT INTO apps_applications (name, description)
+VALUES ('iam-api', 'API del identity provider')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO apps_applications (name, description)
+VALUES ('ticket-hub-api', 'API de tickets de infraestructura')
+ON CONFLICT (name) DO NOTHING;
+
 -- 2) Rol ADMIN por aplicación
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
@@ -71,7 +79,19 @@ FROM apps_applications a
 WHERE a.name = 'infra-hub-api'
 ON CONFLICT (application_id, name) DO NOTHING;
 
--- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'iam-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'ticket-hub-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+-- 3) Primer usuario ADMIN, con acceso a "iam", "ticket-hub" y sus APIs
 INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Local', 'admin.local@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
@@ -98,7 +118,37 @@ WHERE u.email = 'admin.local@jtagram.local'
     WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
   );
 
--- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
+INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
+SELECT u.id, a.id, r.id
+FROM internal_users u, apps_applications a, apps_roles r
+WHERE u.email = 'admin.local@jtagram.local'
+  AND a.name IN ('iam-api', 'ticket-hub-api')
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_roles ir
+    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
+  );
+
+INSERT INTO internal_users_applications (internal_user_id, application_id)
+SELECT u.id, a.id
+FROM internal_users u, apps_applications a
+WHERE u.email = 'admin.local@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_applications ia
+    WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
+  );
+
+INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
+SELECT u.id, o.id, d.id
+FROM internal_users u
+JOIN (VALUES ('iam', 'iam-api'), ('ticket-hub', 'ticket-hub-api')) AS c(origin, destination) ON TRUE
+JOIN apps_applications o ON o.name = c.origin
+JOIN apps_applications d ON d.name = c.destination
+WHERE u.email = 'admin.local@jtagram.local'
+ON CONFLICT (internal_user_id, origin_application_id, destination_application_id) DO NOTHING;
+
+-- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api, iam-api y ticket-hub
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
@@ -124,6 +174,35 @@ WHERE au.cliente_id = 'ticket-hub-api'
     SELECT 1 FROM apps_users_roles aur
     WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
   );
+
+INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
+SELECT au.id, a.id, r.id
+FROM apps_users au, apps_applications a, apps_roles r
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name = 'iam-api'
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_roles aur
+    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
+  );
+
+INSERT INTO apps_users_applications (app_user_id, application_id)
+SELECT au.id, a.id
+FROM apps_users au, apps_applications a
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_applications aua
+    WHERE aua.app_user_id = au.id AND aua.application_id = a.id
+  );
+
+INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
+SELECT au.id, o.id, d.id
+FROM apps_users au
+JOIN apps_applications o ON o.name = 'ticket-hub-api'
+JOIN apps_applications d ON d.name IN ('iam-api', 'infra-hub-api')
+WHERE au.cliente_id = 'ticket-hub-api'
+ON CONFLICT (app_user_id, origin_application_id, destination_application_id) DO NOTHING;
 ```
 
 Ejecútalo:
@@ -196,6 +275,14 @@ INSERT INTO apps_applications (name, description)
 VALUES ('infra-hub-api', 'Ejecucion de operaciones de infraestructura')
 ON CONFLICT (name) DO NOTHING;
 
+INSERT INTO apps_applications (name, description)
+VALUES ('iam-api', 'API del identity provider')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO apps_applications (name, description)
+VALUES ('ticket-hub-api', 'API de tickets de infraestructura')
+ON CONFLICT (name) DO NOTHING;
+
 -- 2) Rol ADMIN por aplicación
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
@@ -215,7 +302,19 @@ FROM apps_applications a
 WHERE a.name = 'infra-hub-api'
 ON CONFLICT (application_id, name) DO NOTHING;
 
--- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'iam-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'ticket-hub-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+-- 3) Primer usuario ADMIN, con acceso a "iam", "ticket-hub" y sus APIs
 INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Dev', 'admin.dev@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
@@ -242,7 +341,37 @@ WHERE u.email = 'admin.dev@jtagram.local'
     WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
   );
 
--- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
+INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
+SELECT u.id, a.id, r.id
+FROM internal_users u, apps_applications a, apps_roles r
+WHERE u.email = 'admin.dev@jtagram.local'
+  AND a.name IN ('iam-api', 'ticket-hub-api')
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_roles ir
+    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
+  );
+
+INSERT INTO internal_users_applications (internal_user_id, application_id)
+SELECT u.id, a.id
+FROM internal_users u, apps_applications a
+WHERE u.email = 'admin.dev@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_applications ia
+    WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
+  );
+
+INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
+SELECT u.id, o.id, d.id
+FROM internal_users u
+JOIN (VALUES ('iam', 'iam-api'), ('ticket-hub', 'ticket-hub-api')) AS c(origin, destination) ON TRUE
+JOIN apps_applications o ON o.name = c.origin
+JOIN apps_applications d ON d.name = c.destination
+WHERE u.email = 'admin.dev@jtagram.local'
+ON CONFLICT (internal_user_id, origin_application_id, destination_application_id) DO NOTHING;
+
+-- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api, iam-api y ticket-hub
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
@@ -268,6 +397,35 @@ WHERE au.cliente_id = 'ticket-hub-api'
     SELECT 1 FROM apps_users_roles aur
     WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
   );
+
+INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
+SELECT au.id, a.id, r.id
+FROM apps_users au, apps_applications a, apps_roles r
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name = 'iam-api'
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_roles aur
+    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
+  );
+
+INSERT INTO apps_users_applications (app_user_id, application_id)
+SELECT au.id, a.id
+FROM apps_users au, apps_applications a
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_applications aua
+    WHERE aua.app_user_id = au.id AND aua.application_id = a.id
+  );
+
+INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
+SELECT au.id, o.id, d.id
+FROM apps_users au
+JOIN apps_applications o ON o.name = 'ticket-hub-api'
+JOIN apps_applications d ON d.name IN ('iam-api', 'infra-hub-api')
+WHERE au.cliente_id = 'ticket-hub-api'
+ON CONFLICT (app_user_id, origin_application_id, destination_application_id) DO NOTHING;
 ```
 
 Ejecútalo:
@@ -340,6 +498,14 @@ INSERT INTO apps_applications (name, description)
 VALUES ('infra-hub-api', 'Ejecucion de operaciones de infraestructura')
 ON CONFLICT (name) DO NOTHING;
 
+INSERT INTO apps_applications (name, description)
+VALUES ('iam-api', 'API del identity provider')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO apps_applications (name, description)
+VALUES ('ticket-hub-api', 'API de tickets de infraestructura')
+ON CONFLICT (name) DO NOTHING;
+
 -- 2) Rol ADMIN por aplicación
 INSERT INTO apps_roles (application_id, name, description)
 SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
@@ -359,7 +525,19 @@ FROM apps_applications a
 WHERE a.name = 'infra-hub-api'
 ON CONFLICT (application_id, name) DO NOTHING;
 
--- 3) Primer usuario ADMIN, con acceso a "iam" y a "ticket-hub"
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'iam-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+INSERT INTO apps_roles (application_id, name, description)
+SELECT a.id, 'ADMIN', 'Acceso total a la aplicacion'
+FROM apps_applications a
+WHERE a.name = 'ticket-hub-api'
+ON CONFLICT (application_id, name) DO NOTHING;
+
+-- 3) Primer usuario ADMIN, con acceso a "iam", "ticket-hub" y sus APIs
 INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Prod', 'admin.prod@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
@@ -386,7 +564,37 @@ WHERE u.email = 'admin.prod@jtagram.local'
     WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
   );
 
--- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api y ticket-hub
+INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
+SELECT u.id, a.id, r.id
+FROM internal_users u, apps_applications a, apps_roles r
+WHERE u.email = 'admin.prod@jtagram.local'
+  AND a.name IN ('iam-api', 'ticket-hub-api')
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_roles ir
+    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
+  );
+
+INSERT INTO internal_users_applications (internal_user_id, application_id)
+SELECT u.id, a.id
+FROM internal_users u, apps_applications a
+WHERE u.email = 'admin.prod@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM internal_users_applications ia
+    WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
+  );
+
+INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
+SELECT u.id, o.id, d.id
+FROM internal_users u
+JOIN (VALUES ('iam', 'iam-api'), ('ticket-hub', 'ticket-hub-api')) AS c(origin, destination) ON TRUE
+JOIN apps_applications o ON o.name = c.origin
+JOIN apps_applications d ON d.name = c.destination
+WHERE u.email = 'admin.prod@jtagram.local'
+ON CONFLICT (internal_user_id, origin_application_id, destination_application_id) DO NOTHING;
+
+-- 4) Cuenta de servicio: ticket-hub-api -> infra-hub-api, iam-api y ticket-hub
 INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
@@ -412,6 +620,35 @@ WHERE au.cliente_id = 'ticket-hub-api'
     SELECT 1 FROM apps_users_roles aur
     WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
   );
+
+INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
+SELECT au.id, a.id, r.id
+FROM apps_users au, apps_applications a, apps_roles r
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name = 'iam-api'
+  AND r.application_id = a.id AND r.name = 'ADMIN'
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_roles aur
+    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
+  );
+
+INSERT INTO apps_users_applications (app_user_id, application_id)
+SELECT au.id, a.id
+FROM apps_users au, apps_applications a
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND NOT EXISTS (
+    SELECT 1 FROM apps_users_applications aua
+    WHERE aua.app_user_id = au.id AND aua.application_id = a.id
+  );
+
+INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
+SELECT au.id, o.id, d.id
+FROM apps_users au
+JOIN apps_applications o ON o.name = 'ticket-hub-api'
+JOIN apps_applications d ON d.name IN ('iam-api', 'infra-hub-api')
+WHERE au.cliente_id = 'ticket-hub-api'
+ON CONFLICT (app_user_id, origin_application_id, destination_application_id) DO NOTHING;
 ```
 
 Ejecútalo:
@@ -460,22 +697,25 @@ exit
 
 Las salidas son iguales en los tres ambientes, salvo el email. Ejemplo con `dev`. El orden de las filas puede variar.
 
-Usuario administrador: una fila por aplicación, con rol `ADMIN` en ambas.
+Usuario administrador: una fila por aplicación, con rol `ADMIN` en las cuatro.
 
 ```
-           email            | aplicacion | rol
-----------------------------+------------+-------
- admin.dev@jtagram.local    | iam        | ADMIN
- admin.dev@jtagram.local    | ticket-hub | ADMIN
-(2 rows)
+           email            |   aplicacion   |  rol
+----------------------------+----------------+-------
+ admin.dev@jtagram.local    | iam            | ADMIN
+ admin.dev@jtagram.local    | ticket-hub     | ADMIN
+ admin.dev@jtagram.local    | iam-api        | ADMIN
+ admin.dev@jtagram.local    | ticket-hub-api | ADMIN
+(4 rows)
 ```
 
-Cuenta de servicio: `ticket-hub-api` con acceso a las dos aplicaciones.
+Cuenta de servicio: `ticket-hub-api` con acceso a tres aplicaciones.
 
 ```
    cliente_id   |  aplicacion   |  rol
 ----------------+---------------+-------
  ticket-hub-api | infra-hub-api | ADMIN
  ticket-hub-api | ticket-hub    | ADMIN
-(2 rows)
+ ticket-hub-api | iam-api       | ADMIN
+(3 rows)
 ```
