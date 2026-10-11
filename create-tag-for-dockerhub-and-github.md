@@ -16,10 +16,10 @@ El prefijo evita que los tags de distintos ambientes choquen: un tag de git y un
 
 | Repositorio | Rama de producción |
 |---|---|
-| `iam` | `main` |
+| `iam` | `master` |
 | `iam-api` | `master` |
 | `infra-hub-api` | `master` |
-| `ticket-hub` | `main` |
+| `ticket-hub` | `master` |
 | `ticket-hub-api` | `master` |
 
 ## 2. Preparar
@@ -188,8 +188,8 @@ cd ..
 ```bash
 cd iam
 git fetch origin
-git checkout main
-git pull origin main
+git checkout master
+git pull origin master
 git tag prod-v0.1.0
 git push origin prod-v0.1.0
 docker build -t "$DOCKERHUB_USERNAME/iam:prod-v0.1.0" .
@@ -230,8 +230,8 @@ cd ..
 ```bash
 cd ticket-hub
 git fetch origin
-git checkout main
-git pull origin main
+git checkout master
+git pull origin master
 git tag prod-v0.1.0
 git push origin prod-v0.1.0
 docker build -t "$DOCKERHUB_USERNAME/ticket-hub:prod-v0.1.0" .

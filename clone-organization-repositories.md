@@ -13,9 +13,9 @@ Copia los 7 repositorios de la organización [`jtagram`](https://github.com/orgs
 | Repositorio | Rama principal |
 |---|---|
 | [`wiki-hub`](https://github.com/jtagram/wiki-hub) | `master` |
-| [`iam`](https://github.com/jtagram/iam) | `main` |
+| [`iam`](https://github.com/jtagram/iam) | `master` |
 | [`iam-api`](https://github.com/jtagram/iam-api) | `master` |
-| [`ticket-hub`](https://github.com/jtagram/ticket-hub) | `main` |
+| [`ticket-hub`](https://github.com/jtagram/ticket-hub) | `master` |
 | [`ticket-hub-api`](https://github.com/jtagram/ticket-hub-api) | `master` |
 | [`infra-hub-api`](https://github.com/jtagram/infra-hub-api) | `master` |
 | [`deploy-hub-api`](https://github.com/jtagram/deploy-hub-api) | `master` |

@@ -214,7 +214,7 @@ Un Personal Access Token **fine-grained**, acotado solo a `deploy-hub-api`:
    - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla.
 2. Resource owner: la **organización** a la que pertenece `deploy-hub-api` (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
 3. Repository access: solo `deploy-hub-api`.
-4. Permissions: `Actions` Read and write, `Contents` **Read and write**. En local el workflow no dispara un `workflow_dispatch`: hace un commit y un push a la rama `local` de `deploy-hub-api`, y con `Contents` en Read-only falla con `403 Permission denied`.
+4. Permissions: `Actions` Read and write, `Contents` Read-only (el workflow solo dispara el deploy con `gh workflow run`, igual que en dev y prod; no hace push, así que no necesita escritura en `Contents`).
 5. Copiar el token al generarlo.
 
 Este mismo valor se carga en los 5 repos de apps.

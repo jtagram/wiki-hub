@@ -154,41 +154,41 @@ Igual que en dev, el job `gate` pide la aprobación del Environment `production-
 #### iam-api
 
 ```bash
-gh workflow run release-iam-api.yml --repo "$ORG/iam-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run release-iam-api-prod.yml --repo "$ORG/iam-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam-api" $(gh run list --repo "$ORG/iam-api" --workflow release-iam-api.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/iam-api" $(gh run list --repo "$ORG/iam-api" --workflow release-iam-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### infra-hub-api
 
 ```bash
-gh workflow run release-infra-hub-api.yml --repo "$ORG/infra-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run release-infra-hub-api-prod.yml --repo "$ORG/infra-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/infra-hub-api" $(gh run list --repo "$ORG/infra-hub-api" --workflow release-infra-hub-api.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/infra-hub-api" $(gh run list --repo "$ORG/infra-hub-api" --workflow release-infra-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub-api
 
 ```bash
-gh workflow run release-ticket-hub-api.yml --repo "$ORG/ticket-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run release-ticket-hub-api-prod.yml --repo "$ORG/ticket-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub-api" $(gh run list --repo "$ORG/ticket-hub-api" --workflow release-ticket-hub-api.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/ticket-hub-api" $(gh run list --repo "$ORG/ticket-hub-api" --workflow release-ticket-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### iam
 
 ```bash
-gh workflow run release-iam.yml --repo "$ORG/iam" --ref main -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run release-iam-prod.yml --repo "$ORG/iam" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam" $(gh run list --repo "$ORG/iam" --workflow release-iam.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/iam" $(gh run list --repo "$ORG/iam" --workflow release-iam-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub
 
 ```bash
-gh workflow run release-ticket-hub.yml --repo "$ORG/ticket-hub" --ref main -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run release-ticket-hub-prod.yml --repo "$ORG/ticket-hub" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub" $(gh run list --repo "$ORG/ticket-hub" --workflow release-ticket-hub.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/ticket-hub" $(gh run list --repo "$ORG/ticket-hub" --workflow release-ticket-hub-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 El workflow compila y publica la imagen, crea el tag de git y dispara `deploy-<app>.yml` (o `deploy-<app>-dev.yml`) en `deploy-hub-api`. Sigue el rollout en la pestaña **Actions** de `deploy-hub-api`.
