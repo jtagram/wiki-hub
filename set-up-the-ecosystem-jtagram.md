@@ -27,3 +27,5 @@ Sigue los pasos en este orden. Cada uno da por hecho que los anteriores ya se co
 18. [first-deploy-for-three-environments.md](first-deploy-for-three-environments.md): hacer el primer deploy de cada app en cada ambiente.
 19. [expose-apps-to-tailscale-network-for-three-environments.md](expose-apps-to-tailscale-network-for-three-environments.md): exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS.
 20. [implement-observability.md](implement-observability.md): instalar Loki, Alloy y Grafana en cada ambiente para ver los logs de las apps, y exponer Grafana a la tailnet.
+
+<p align="right"><a href="README.md">← Back</a></p>
