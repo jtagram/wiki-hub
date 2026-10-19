@@ -1,6 +1,6 @@
 # Configurar llaves de acceso para los 3 ambientes
 
-Deja el acceso por SSH a las VMs `local`, `dev` y `prod` con llave y también con contraseña. El usuario `ubuntu` usa `sudo` sin pedir contraseña.
+Deja el acceso por SSH a las VMs `local`, `dev` y `prod` solo con llave. La contraseña de `ubuntu` queda únicamente para el acceso local desde `pcbox`. El usuario `ubuntu` usa `sudo` sin pedir contraseña.
 
 Necesitas:
 
@@ -74,29 +74,29 @@ multipass exec prod -- sudo chmod 440 /etc/sudoers.d/90-ubuntu-nopasswd
 multipass exec prod -- sudo visudo -cf /etc/sudoers.d/90-ubuntu-nopasswd
 ```
 
-## 5. Permitir SSH con contraseña
+## 5. Dejar SSH solo con llave
 
-El usuario `ubuntu` no tiene contraseña. Cada comando `passwd` te pide definir una. Guárdala: es el `SSH_PASSWORD` de ese ambiente.
+El usuario `ubuntu` no tiene contraseña. Cada comando `passwd` te pide definir una. Guárdala: es el `SSH_PASSWORD` de ese ambiente. Solo sirve para el acceso local desde `pcbox`; por SSH ya no se acepta.
 
-El archivo se llama `01-` para que se lea antes que los de cloud-init, que desactivan la contraseña.
+El archivo se llama `01-` para que se lea antes que los de cloud-init.
 
 ```bash
 multipass exec local -- sudo passwd ubuntu
-multipass exec local -- sudo sh -c "printf 'PasswordAuthentication yes\n' > /etc/ssh/sshd_config.d/01-allow-password.conf"
+multipass exec local -- sudo sh -c "printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\nPubkeyAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/01-keys-only.conf"
 multipass exec local -- sudo sshd -t
 multipass exec local -- sudo systemctl restart ssh
 ```
 
 ```bash
 multipass exec dev -- sudo passwd ubuntu
-multipass exec dev -- sudo sh -c "printf 'PasswordAuthentication yes\n' > /etc/ssh/sshd_config.d/01-allow-password.conf"
+multipass exec dev -- sudo sh -c "printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\nPubkeyAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/01-keys-only.conf"
 multipass exec dev -- sudo sshd -t
 multipass exec dev -- sudo systemctl restart ssh
 ```
 
 ```bash
 multipass exec prod -- sudo passwd ubuntu
-multipass exec prod -- sudo sh -c "printf 'PasswordAuthentication yes\n' > /etc/ssh/sshd_config.d/01-allow-password.conf"
+multipass exec prod -- sudo sh -c "printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\nPubkeyAuthentication yes\nPermitRootLogin no\n' > /etc/ssh/sshd_config.d/01-keys-only.conf"
 multipass exec prod -- sudo sshd -t
 multipass exec prod -- sudo systemctl restart ssh
 ```
@@ -113,12 +113,12 @@ ssh -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev 'sudo -n true && echo OK'
 ssh -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod 'sudo -n true && echo OK'
 ```
 
-Con contraseña, cada comando pide la contraseña del paso 5 e imprime `OK`:
+Con contraseña, cada comando debe fallar con `Permission denied (publickey)`:
 
 ```bash
-ssh -o PubkeyAuthentication=no ubuntu@pcbox-local 'sudo -n true && echo OK'
-ssh -o PubkeyAuthentication=no ubuntu@pcbox-dev 'sudo -n true && echo OK'
-ssh -o PubkeyAuthentication=no ubuntu@pcbox-prod 'sudo -n true && echo OK'
+ssh -o PubkeyAuthentication=no ubuntu@pcbox-local 'echo OK'
+ssh -o PubkeyAuthentication=no ubuntu@pcbox-dev 'echo OK'
+ssh -o PubkeyAuthentication=no ubuntu@pcbox-prod 'echo OK'
 ```
 
 `ubuntu` es el usuario por defecto de las VMs de Multipass.

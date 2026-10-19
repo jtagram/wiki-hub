@@ -9,7 +9,7 @@ Necesitas:
 - Repositorios clonados — [clone-organization-repositories.md](clone-organization-repositories.md).
 - Las 3 VMs con MicroK8s y el certificado del API server extendido con su IP de Tailscale — sección "Certificado del API server" de [create-users-with-permissions-for-three-environments.md](create-users-with-permissions-for-three-environments.md). Sin eso, el kubeconfig de abajo no puede conectarse.
 
-El kubeconfig de cada ambiente es el de **administración** de esa VM, distinto de los kubeconfig de solo lectura del usuario `viewer`. Lo usa `deploy-hub-api` para desplegar.
+El kubeconfig de cada ambiente es el del ServiceAccount `deployer` de esa VM, con permisos limitados a desplegar las apps. No es el de administración ni el de solo lectura del usuario `viewer`. Lo usa `deploy-hub-api` para desplegar.
 
 Secretos de cada ambiente: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y el token de dispatch (un mismo valor que se carga con 5 nombres distintos).
 
@@ -29,7 +29,7 @@ Environment de GitHub: `prod`.
 
 ### KUBECONFIG_MICROK8S
 
-Contenido completo del kubeconfig de administración del cluster de la VM `prod`.
+Kubeconfig del ServiceAccount `deployer` del cluster de la VM `prod`. Solo puede desplegar las apps; no es el de administración.
 
 Entra a la VM:
 
@@ -37,28 +37,115 @@ Entra a la VM:
 ssh -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod
 ```
 
-Dentro de la VM, obtén la IP de Tailscale y genera el archivo:
+Dentro de la VM, crea los permisos mínimos:
 
 ```bash
-tailscale ip -4
-microk8s config > ~/pcbox-kubeconfig-prod.yaml
-nano ~/pcbox-kubeconfig-prod.yaml
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-deployer
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deployer-cluster
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    resourceNames: ["iam", "iam-api", "infra-hub-api", "ticket-hub", "ticket-hub-api"]
+    verbs: ["get", "patch"]
+EOF
 ```
 
-En `nano`, cambia únicamente la línea `server:` para que apunte a la IP de Tailscale en vez de a la IP local:
+Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
 
-```yaml
-server: https://100.x.x.x:16443
+```bash
+microk8s kubectl create serviceaccount deployer -n microk8s-access
+microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n infra-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+```
+
+Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
+
+```bash
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: deployer-token
+  namespace: microk8s-access
+  annotations:
+    kubernetes.io/service-account.name: deployer
+type: kubernetes.io/service-account-token
+EOF
+```
+
+Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
+
+```bash
+SERVER_IP=$(tailscale ip -4)
+CA=$(microk8s kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+TOKEN=$(microk8s kubectl get secret deployer-token -n microk8s-access -o jsonpath='{.data.token}' | base64 -d)
+
+cat > ~/pcbox-kubeconfig-deployer-prod.yaml <<EOF
+apiVersion: v1
+kind: Config
+clusters:
+  - name: pcbox-prod
+    cluster:
+      certificate-authority-data: $CA
+      server: https://${SERVER_IP}:16443
+contexts:
+  - name: microk8s-deployer-prod
+    context:
+      cluster: pcbox-prod
+      user: deployer-prod
+current-context: microk8s-deployer-prod
+users:
+  - name: deployer-prod
+    user:
+      token: $TOKEN
+EOF
+```
+
+Verifica los permisos antes de salir. Los dos primeros deben responder `yes` y los dos últimos `no`:
+
+```bash
+microk8s kubectl auth can-i patch deployments -n infra-hub-api --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i list nodes --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i get secrets -n databases --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:microk8s-access:deployer
 ```
 
 Sal de la VM y cópialo a tu PC cliente:
 
 ```bash
 exit
-scp -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod:~/pcbox-kubeconfig-prod.yaml .
+scp -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod:~/pcbox-kubeconfig-deployer-prod.yaml .
 ```
 
-Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene una clave privada.
+Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene un token.
 
 ### TS_OAUTH_CLIENT_ID y TS_OAUTH_SECRET
 
@@ -97,7 +184,7 @@ Este mismo valor se carga en los 5 repos de apps.
 
 ### KUBECONFIG_MICROK8S
 
-Contenido completo del kubeconfig de administración del cluster de la VM `dev`.
+Kubeconfig del ServiceAccount `deployer` del cluster de la VM `dev`. Solo puede desplegar las apps; no es el de administración.
 
 Entra a la VM:
 
@@ -105,28 +192,115 @@ Entra a la VM:
 ssh -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev
 ```
 
-Dentro de la VM, obtén la IP de Tailscale y genera el archivo:
+Dentro de la VM, crea los permisos mínimos:
 
 ```bash
-tailscale ip -4
-microk8s config > ~/pcbox-kubeconfig-dev.yaml
-nano ~/pcbox-kubeconfig-dev.yaml
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-deployer
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deployer-cluster
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    resourceNames: ["iam", "iam-api", "infra-hub-api", "ticket-hub", "ticket-hub-api"]
+    verbs: ["get", "patch"]
+EOF
 ```
 
-En `nano`, cambia únicamente la línea `server:` para que apunte a la IP de Tailscale en vez de a la IP local:
+Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
 
-```yaml
-server: https://100.x.x.x:16443
+```bash
+microk8s kubectl create serviceaccount deployer -n microk8s-access
+microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n infra-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+```
+
+Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
+
+```bash
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: deployer-token
+  namespace: microk8s-access
+  annotations:
+    kubernetes.io/service-account.name: deployer
+type: kubernetes.io/service-account-token
+EOF
+```
+
+Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
+
+```bash
+SERVER_IP=$(tailscale ip -4)
+CA=$(microk8s kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+TOKEN=$(microk8s kubectl get secret deployer-token -n microk8s-access -o jsonpath='{.data.token}' | base64 -d)
+
+cat > ~/pcbox-kubeconfig-deployer-dev.yaml <<EOF
+apiVersion: v1
+kind: Config
+clusters:
+  - name: pcbox-dev
+    cluster:
+      certificate-authority-data: $CA
+      server: https://${SERVER_IP}:16443
+contexts:
+  - name: microk8s-deployer-dev
+    context:
+      cluster: pcbox-dev
+      user: deployer-dev
+current-context: microk8s-deployer-dev
+users:
+  - name: deployer-dev
+    user:
+      token: $TOKEN
+EOF
+```
+
+Verifica los permisos antes de salir. Los dos primeros deben responder `yes` y los dos últimos `no`:
+
+```bash
+microk8s kubectl auth can-i patch deployments -n infra-hub-api --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i list nodes --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i get secrets -n databases --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:microk8s-access:deployer
 ```
 
 Sal de la VM y cópialo a tu PC cliente:
 
 ```bash
 exit
-scp -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev:~/pcbox-kubeconfig-dev.yaml .
+scp -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev:~/pcbox-kubeconfig-deployer-dev.yaml .
 ```
 
-Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene una clave privada.
+Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene un token.
 
 ### TS_OAUTH_CLIENT_ID y TS_OAUTH_SECRET
 
@@ -165,7 +339,7 @@ Este mismo valor se carga en los 5 repos de apps.
 
 ### KUBECONFIG_MICROK8S
 
-Contenido completo del kubeconfig de administración del cluster de la VM `local`.
+Kubeconfig del ServiceAccount `deployer` del cluster de la VM `local`. Solo puede desplegar las apps; no es el de administración.
 
 Entra a la VM:
 
@@ -173,28 +347,115 @@ Entra a la VM:
 ssh -i ~/.ssh/pcbox_local ubuntu@pcbox-local
 ```
 
-Dentro de la VM, obtén la IP de Tailscale y genera el archivo:
+Dentro de la VM, crea los permisos mínimos:
 
 ```bash
-tailscale ip -4
-microk8s config > ~/pcbox-kubeconfig-local.yaml
-nano ~/pcbox-kubeconfig-local.yaml
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: app-deployer
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deployer-cluster
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    resourceNames: ["iam", "iam-api", "infra-hub-api", "ticket-hub", "ticket-hub-api"]
+    verbs: ["get", "patch"]
+EOF
 ```
 
-En `nano`, cambia únicamente la línea `server:` para que apunte a la IP de Tailscale en vez de a la IP local:
+Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
 
-```yaml
-server: https://100.x.x.x:16443
+```bash
+microk8s kubectl create serviceaccount deployer -n microk8s-access
+microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n infra-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
+```
+
+Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
+
+```bash
+microk8s kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: Secret
+metadata:
+  name: deployer-token
+  namespace: microk8s-access
+  annotations:
+    kubernetes.io/service-account.name: deployer
+type: kubernetes.io/service-account-token
+EOF
+```
+
+Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
+
+```bash
+SERVER_IP=$(tailscale ip -4)
+CA=$(microk8s kubectl config view --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+TOKEN=$(microk8s kubectl get secret deployer-token -n microk8s-access -o jsonpath='{.data.token}' | base64 -d)
+
+cat > ~/pcbox-kubeconfig-deployer-local.yaml <<EOF
+apiVersion: v1
+kind: Config
+clusters:
+  - name: pcbox-local
+    cluster:
+      certificate-authority-data: $CA
+      server: https://${SERVER_IP}:16443
+contexts:
+  - name: microk8s-deployer-local
+    context:
+      cluster: pcbox-local
+      user: deployer-local
+current-context: microk8s-deployer-local
+users:
+  - name: deployer-local
+    user:
+      token: $TOKEN
+EOF
+```
+
+Verifica los permisos antes de salir. Los dos primeros deben responder `yes` y los dos últimos `no`:
+
+```bash
+microk8s kubectl auth can-i patch deployments -n infra-hub-api --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i list nodes --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i get secrets -n databases --as=system:serviceaccount:microk8s-access:deployer
+microk8s kubectl auth can-i create clusterrolebindings --as=system:serviceaccount:microk8s-access:deployer
 ```
 
 Sal de la VM y cópialo a tu PC cliente:
 
 ```bash
 exit
-scp -i ~/.ssh/pcbox_local ubuntu@pcbox-local:~/pcbox-kubeconfig-local.yaml .
+scp -i ~/.ssh/pcbox_local ubuntu@pcbox-local:~/pcbox-kubeconfig-deployer-local.yaml .
 ```
 
-Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene una clave privada.
+Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo commitees: contiene un token.
 
 ### TS_OAUTH_CLIENT_ID y TS_OAUTH_SECRET
 
