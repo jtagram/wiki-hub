@@ -6,7 +6,7 @@ Sigue los pasos en este orden. Cada uno da por hecho que los anteriores ya se co
 
 ## Pasos
 
-0. [pcbox-bootstrap.md](pcbox-bootstrap.md): preparar el servidor `pcbox`, que aloja las 3 VMs: instalar Ubuntu Server y OpenSSH, conectarlo a la tailnet, y dejar el acceso por SSH con llave y contraseña y `sudo` sin contraseña.
+0. [pcbox-bootstrap.md](pcbox-bootstrap.md): preparar el servidor `pcbox`, que aloja las 3 VMs: instalar Ubuntu Server y OpenSSH, conectarlo a la tailnet y configurar el acceso por SSH solo con llave, dejando la contraseña únicamente para el acceso físico con monitor y teclado.
 1. [install-multipass.md](install-multipass.md): instalar Multipass en el servidor `pcbox`.
 2. [create-ubuntu-server-on-multipass-vm.md](create-ubuntu-server-on-multipass-vm.md): crear las 3 VMs con Ubuntu Server.
 3. [configure-tailscale-for-three-environments.md](configure-tailscale-for-three-environments.md): conectar las VMs a la tailnet.

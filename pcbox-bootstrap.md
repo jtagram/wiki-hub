@@ -207,3 +207,9 @@ Para comprobar el acceso físico, conecta monitor y teclado a `pcbox` e inicia s
 | `SSH_PASSWORD` | La contraseña de `jhon` |
 | `IP_TAILSCALE_SERVER_PCBOX` | La IP de Tailscale del servidor (`100.x.x.x`) |
 | `deploy_key` | La clave privada generada con `ssh-keygen` |
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>

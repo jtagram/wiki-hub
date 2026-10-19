@@ -24,17 +24,17 @@ Las llaves privadas (`pcbox_*`) se quedan en tu PC. No las copies ni las subas a
 Desde tu PC cliente:
 
 ```bash
-scp ~/.ssh/pcbox_local.pub jhon@IP_TAILSCALE:~/
-scp ~/.ssh/pcbox_dev.pub jhon@IP_TAILSCALE:~/
-scp ~/.ssh/pcbox_prod.pub jhon@IP_TAILSCALE:~/
+scp ~/.ssh/pcbox_local.pub jhon@IP_TAILSCALE_SERVER_PCBOX:~/
+scp ~/.ssh/pcbox_dev.pub jhon@IP_TAILSCALE_SERVER_PCBOX:~/
+scp ~/.ssh/pcbox_prod.pub jhon@IP_TAILSCALE_SERVER_PCBOX:~/
 ```
 
-`IP_TAILSCALE` es la IP de `pcbox` que guardaste en [pcbox-bootstrap.md](pcbox-bootstrap.md).
+`IP_TAILSCALE_SERVER_PCBOX` es la IP de `pcbox` que guardaste en [pcbox-bootstrap.md](pcbox-bootstrap.md).
 
 Entra a `pcbox`. Los pasos 3, 4 y 5 se ejecutan desde ahí:
 
 ```bash
-ssh jhon@IP_TAILSCALE
+ssh jhon@IP_TAILSCALE_SERVER_PCBOX
 ```
 
 ## 3. Autorizar cada llave en su VM

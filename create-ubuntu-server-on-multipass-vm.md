@@ -4,6 +4,16 @@ Crea una máquina virtual Ubuntu Server por ambiente: `local`, `dev` y `prod`.
 
 Necesitas Multipass instalado — [install-multipass.md](install-multipass.md).
 
+## 0. Acceder a pcbox por SSH
+
+Desde la terminal de la PC cliente, accede a `pcbox` con la llave `deploy_key` ([pcbox-bootstrap.md](pcbox-bootstrap.md)):
+
+```bash
+ssh -i deploy_key jhon@IP_TAILSCALE_SERVER_PCBOX
+```
+
+Los comandos de los pasos siguientes se ejecutan en esa sesión.
+
 ## 1. Crear las VMs
 
 | VM | Memoria | CPUs | Disco |
@@ -32,4 +42,10 @@ local    Running   10.x.x.x        Ubuntu 24.04 LTS
 dev      Running   10.x.x.x        Ubuntu 24.04 LTS
 prod     Running   10.x.x.x        Ubuntu 24.04 LTS
 ```
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>
 
