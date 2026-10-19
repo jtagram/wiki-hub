@@ -8,7 +8,7 @@ Necesitas:
 
 - Los Environments creados en cada repositorio — [create-environment-in-github.md](create-environment-in-github.md). Un Environment secret solo se puede cargar si el Environment ya existe.
 - La CLI `gh` autenticada con permisos de administración sobre los repositorios (`gh auth status`).
-- En la carpeta desde la que pegas los comandos, los kubeconfig de administración que bajaste en el paso anterior: `pcbox-kubeconfig-prod.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-local.yaml`.
+- En la carpeta desde la que pegas los comandos, los kubeconfig del ServiceAccount `deployer` que bajaste en el paso anterior: `pcbox-kubeconfig-deployer-prod.yaml`, `pcbox-kubeconfig-deployer-dev.yaml` y `pcbox-kubeconfig-deployer-local.yaml`.
 
 Cada ambiente usa el mismo nombre de secreto con su propio valor, en el Environment del mismo nombre (`prod`, `dev` o `local`). No cargues secretos en `production-approver` ni en `development-approver`.
 
@@ -22,7 +22,7 @@ unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET DISP
 
 ## prod
 
-Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-prod.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
+Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-deployer-prod.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
 
 Pega el bloque completo. Reemplaza `<tu-organizacion>` y cada `<VALOR>`:
 
@@ -39,7 +39,7 @@ DISPATCH_TOKEN='<VALOR>'
 gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
 gh secret set TS_OAUTH_CLIENT_ID --env prod --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env prod --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
-gh secret set KUBECONFIG_MICROK8S --env prod --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-prod.yaml
+gh secret set KUBECONFIG_MICROK8S --env prod --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-prod.yaml
 
 # iam
 gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
@@ -86,7 +86,7 @@ echo "ticket-hub-api"; gh secret list --env prod --repo "$ORG/ticket-hub-api"
 
 ## dev
 
-Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-dev.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
+Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-deployer-dev.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
 
 Pega el bloque completo. Reemplaza `<tu-organizacion>` y cada `<VALOR>`:
 
@@ -103,7 +103,7 @@ DISPATCH_TOKEN='<VALOR>'
 gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
 gh secret set TS_OAUTH_CLIENT_ID --env dev --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env dev --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
-gh secret set KUBECONFIG_MICROK8S --env dev --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-dev.yaml
+gh secret set KUBECONFIG_MICROK8S --env dev --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-dev.yaml
 
 # iam
 gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
@@ -150,7 +150,7 @@ echo "ticket-hub-api"; gh secret list --env dev --repo "$ORG/ticket-hub-api"
 
 ## local
 
-Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-local.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
+Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-deployer-local.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
 
 Pega el bloque completo. Reemplaza `<tu-organizacion>` y cada `<VALOR>`:
 
@@ -167,7 +167,7 @@ DISPATCH_TOKEN='<VALOR>'
 gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
 gh secret set TS_OAUTH_CLIENT_ID --env local --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env local --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
-gh secret set KUBECONFIG_MICROK8S --env local --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-local.yaml
+gh secret set KUBECONFIG_MICROK8S --env local --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-local.yaml
 
 # iam
 gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
