@@ -10,12 +10,17 @@ Necesitas:
 - La CLI `gh` autenticada con permisos de administración sobre los repositorios (`gh auth status`).
 - En la carpeta desde la que pegas los comandos, los kubeconfig del ServiceAccount `deployer` que bajaste en el paso anterior: `pcbox-kubeconfig-deployer-prod.yaml`, `pcbox-kubeconfig-deployer-dev.yaml` y `pcbox-kubeconfig-deployer-local.yaml`.
 
-Cada ambiente usa el mismo nombre de secreto con su propio valor, en el Environment del mismo nombre (`prod`, `dev` o `local`). No cargues secretos en `production-approver` ni en `development-approver`.
+Casi todos los secretos van en `deploy-hub-api`, porque ahí corre todo el flujo. Cada ambiente usa el mismo nombre de secreto con su propio valor, en el Environment del mismo nombre (`prod`, `dev` o `local`). Las apps solo llevan un secreto, y solo en `local`. No cargues secretos en `production-approver` ni en `development-approver`.
+
+| Dónde | `prod` | `dev` | `local` |
+|---|---|---|---|
+| `deploy-hub-api` | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`, `APP_REPO_TOKEN` | los mismos 6 | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` |
+| cada app | ninguno | ninguno | `DISPATCH_DEPLOY_HUB_API_LOCAL` |
 
 Los valores quedan en el historial de la terminal. Al terminar de cargar un ambiente, borra las variables:
 
 ```bash
-unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET DISPATCH_TOKEN
+unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET APP_REPO_TOKEN DISPATCH_DEPLOY_HUB_API_LOCAL
 ```
 
 ---
@@ -33,38 +38,15 @@ DOCKERHUB_USERNAME='<VALOR>'
 DOCKERHUB_TOKEN='<VALOR>'
 TS_OAUTH_CLIENT_ID='<VALOR>'
 TS_OAUTH_SECRET='<VALOR>'
-DISPATCH_TOKEN='<VALOR>'
+APP_REPO_TOKEN='<VALOR>'
 
 # deploy-hub-api
 gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
+gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_TOKEN"
 gh secret set TS_OAUTH_CLIENT_ID --env prod --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env prod --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
+gh secret set APP_REPO_TOKEN --env prod --repo "$ORG/deploy-hub-api" --body "$APP_REPO_TOKEN"
 gh secret set KUBECONFIG_MICROK8S --env prod --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-prod.yaml
-
-# iam
-gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/iam" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_DISPATCH_TOKEN --env prod --repo "$ORG/iam" --body "$DISPATCH_TOKEN"
-
-# iam-api
-gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/iam-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/iam-api" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_API_DISPATCH_TOKEN --env prod --repo "$ORG/iam-api" --body "$DISPATCH_TOKEN"
-
-# infra-hub-api
-gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set INFRA_HUB_API_DISPATCH_TOKEN --env prod --repo "$ORG/infra-hub-api" --body "$DISPATCH_TOKEN"
-
-# ticket-hub
-gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/ticket-hub" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/ticket-hub" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_DISPATCH_TOKEN --env prod --repo "$ORG/ticket-hub" --body "$DISPATCH_TOKEN"
-
-# ticket-hub-api
-gh secret set DOCKERHUB_USERNAME --env prod --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env prod --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_API_DISPATCH_TOKEN --env prod --repo "$ORG/ticket-hub-api" --body "$DISPATCH_TOKEN"
 ```
 
 Verifica que cada repositorio tenga sus secretos en el Environment `prod`:
@@ -73,14 +55,9 @@ Verifica que cada repositorio tenga sus secretos en el Environment `prod`:
 ORG=<tu-organizacion>
 
 echo "deploy-hub-api"; gh secret list --env prod --repo "$ORG/deploy-hub-api"
-echo "iam"; gh secret list --env prod --repo "$ORG/iam"
-echo "iam-api"; gh secret list --env prod --repo "$ORG/iam-api"
-echo "infra-hub-api"; gh secret list --env prod --repo "$ORG/infra-hub-api"
-echo "ticket-hub"; gh secret list --env prod --repo "$ORG/ticket-hub"
-echo "ticket-hub-api"; gh secret list --env prod --repo "$ORG/ticket-hub-api"
 ```
 
-`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` y su `*_DISPATCH_TOKEN`.
+`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y `APP_REPO_TOKEN`. Las apps no llevan secretos en `prod`: sus workflows de prod ya no existen, porque todo el flujo corre en `deploy-hub-api`.
 
 ---
 
@@ -97,38 +74,15 @@ DOCKERHUB_USERNAME='<VALOR>'
 DOCKERHUB_TOKEN='<VALOR>'
 TS_OAUTH_CLIENT_ID='<VALOR>'
 TS_OAUTH_SECRET='<VALOR>'
-DISPATCH_TOKEN='<VALOR>'
+APP_REPO_TOKEN='<VALOR>'
 
 # deploy-hub-api
 gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
+gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_TOKEN"
 gh secret set TS_OAUTH_CLIENT_ID --env dev --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env dev --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
+gh secret set APP_REPO_TOKEN --env dev --repo "$ORG/deploy-hub-api" --body "$APP_REPO_TOKEN"
 gh secret set KUBECONFIG_MICROK8S --env dev --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-dev.yaml
-
-# iam
-gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/iam" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_DISPATCH_TOKEN --env dev --repo "$ORG/iam" --body "$DISPATCH_TOKEN"
-
-# iam-api
-gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/iam-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/iam-api" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_API_DISPATCH_TOKEN --env dev --repo "$ORG/iam-api" --body "$DISPATCH_TOKEN"
-
-# infra-hub-api
-gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set INFRA_HUB_API_DISPATCH_TOKEN --env dev --repo "$ORG/infra-hub-api" --body "$DISPATCH_TOKEN"
-
-# ticket-hub
-gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/ticket-hub" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/ticket-hub" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_DISPATCH_TOKEN --env dev --repo "$ORG/ticket-hub" --body "$DISPATCH_TOKEN"
-
-# ticket-hub-api
-gh secret set DOCKERHUB_USERNAME --env dev --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env dev --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_API_DISPATCH_TOKEN --env dev --repo "$ORG/ticket-hub-api" --body "$DISPATCH_TOKEN"
 ```
 
 Verifica que cada repositorio tenga sus secretos en el Environment `dev`:
@@ -137,14 +91,9 @@ Verifica que cada repositorio tenga sus secretos en el Environment `dev`:
 ORG=<tu-organizacion>
 
 echo "deploy-hub-api"; gh secret list --env dev --repo "$ORG/deploy-hub-api"
-echo "iam"; gh secret list --env dev --repo "$ORG/iam"
-echo "iam-api"; gh secret list --env dev --repo "$ORG/iam-api"
-echo "infra-hub-api"; gh secret list --env dev --repo "$ORG/infra-hub-api"
-echo "ticket-hub"; gh secret list --env dev --repo "$ORG/ticket-hub"
-echo "ticket-hub-api"; gh secret list --env dev --repo "$ORG/ticket-hub-api"
 ```
 
-`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` y su `*_DISPATCH_TOKEN`.
+`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y `APP_REPO_TOKEN`. Las apps no llevan secretos en `dev`: sus workflows de dev ya no existen, porque todo el flujo corre en `deploy-hub-api`.
 
 ---
 
@@ -161,38 +110,21 @@ DOCKERHUB_USERNAME='<VALOR>'
 DOCKERHUB_TOKEN='<VALOR>'
 TS_OAUTH_CLIENT_ID='<VALOR>'
 TS_OAUTH_SECRET='<VALOR>'
-DISPATCH_TOKEN='<VALOR>'
+DISPATCH_DEPLOY_HUB_API_LOCAL='<VALOR>'
 
 # deploy-hub-api
 gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_USERNAME"
+gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/deploy-hub-api" --body "$DOCKERHUB_TOKEN"
 gh secret set TS_OAUTH_CLIENT_ID --env local --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_CLIENT_ID"
 gh secret set TS_OAUTH_SECRET --env local --repo "$ORG/deploy-hub-api" --body "$TS_OAUTH_SECRET"
 gh secret set KUBECONFIG_MICROK8S --env local --repo "$ORG/deploy-hub-api" < pcbox-kubeconfig-deployer-local.yaml
 
-# iam
-gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/iam" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/iam" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_DISPATCH_TOKEN --env local --repo "$ORG/iam" --body "$DISPATCH_TOKEN"
-
-# iam-api
-gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/iam-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/iam-api" --body "$DOCKERHUB_TOKEN"
-gh secret set IAM_API_DISPATCH_TOKEN --env local --repo "$ORG/iam-api" --body "$DISPATCH_TOKEN"
-
-# infra-hub-api
-gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/infra-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set INFRA_HUB_API_DISPATCH_TOKEN --env local --repo "$ORG/infra-hub-api" --body "$DISPATCH_TOKEN"
-
-# ticket-hub
-gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/ticket-hub" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/ticket-hub" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_DISPATCH_TOKEN --env local --repo "$ORG/ticket-hub" --body "$DISPATCH_TOKEN"
-
-# ticket-hub-api
-gh secret set DOCKERHUB_USERNAME --env local --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_USERNAME"
-gh secret set DOCKERHUB_TOKEN --env local --repo "$ORG/ticket-hub-api" --body "$DOCKERHUB_TOKEN"
-gh secret set TICKET_HUB_API_DISPATCH_TOKEN --env local --repo "$ORG/ticket-hub-api" --body "$DISPATCH_TOKEN"
+# apps (solo local: el token con el que cada app dispara el deploy en deploy-hub-api)
+gh secret set DISPATCH_DEPLOY_HUB_API_LOCAL --env local --repo "$ORG/iam" --body "$DISPATCH_DEPLOY_HUB_API_LOCAL"
+gh secret set DISPATCH_DEPLOY_HUB_API_LOCAL --env local --repo "$ORG/iam-api" --body "$DISPATCH_DEPLOY_HUB_API_LOCAL"
+gh secret set DISPATCH_DEPLOY_HUB_API_LOCAL --env local --repo "$ORG/infra-hub-api" --body "$DISPATCH_DEPLOY_HUB_API_LOCAL"
+gh secret set DISPATCH_DEPLOY_HUB_API_LOCAL --env local --repo "$ORG/ticket-hub" --body "$DISPATCH_DEPLOY_HUB_API_LOCAL"
+gh secret set DISPATCH_DEPLOY_HUB_API_LOCAL --env local --repo "$ORG/ticket-hub-api" --body "$DISPATCH_DEPLOY_HUB_API_LOCAL"
 ```
 
 Verifica que cada repositorio tenga sus secretos en el Environment `local`:
@@ -208,4 +140,6 @@ echo "ticket-hub"; gh secret list --env local --repo "$ORG/ticket-hub"
 echo "ticket-hub-api"; gh secret list --env local --repo "$ORG/ticket-hub-api"
 ```
 
-`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN` y su `*_DISPATCH_TOKEN`.
+`deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar solo `DISPATCH_DEPLOY_HUB_API_LOCAL`.
+
+<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

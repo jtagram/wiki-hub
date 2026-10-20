@@ -509,3 +509,9 @@ Si un comando que debía fallar se ejecuta, revisa los `ClusterRole` del paso de
 | `secrets-editor` | `ClusterRole` que escribe Secrets | Se asigna con un `RoleBinding` en cada namespace del ambiente, así que solo vale ahí |
 | `viewer-secrets-editor-token` | Secret con el token de cada usuario | Fuente del token. Para revocar el acceso, bórralo |
 | `pcbox-kubeconfig-viewer-<ambiente>.yaml` | Kubeconfig del usuario | Lo que usa la PC cliente para conectarse |
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>

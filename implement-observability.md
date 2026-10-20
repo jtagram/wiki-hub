@@ -460,3 +460,5 @@ El campo `level` de pino es numérico: `30` info, `40` warn, `50` error, `60` fa
 - **Disco:** las VMs tienen solo 20 GB. Con `microk8s-hostpath` el tamaño del volumen (`2Gi`) es solo nominal y no se aplica como límite: lo que evita llenar el disco es la retención. Revisa el espacio con `df -h /` dentro de la VM, y si sube demasiado baja `retention_period`.
 - **Sin autenticación en Loki:** solo es accesible dentro del cluster. No lo expongas a la tailnet.
 - **Logs de la app:** Loki solo ve lo que las apps escriben en stdout/stderr. `iam-api` e `infra-hub-api` ya lo hacen en JSON con `nestjs-pino`.
+
+<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

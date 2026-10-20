@@ -11,7 +11,7 @@ Necesitas:
 
 El kubeconfig de cada ambiente es el del ServiceAccount `deployer` de esa VM, con permisos limitados a desplegar las apps. No es el de administración ni el de solo lectura del usuario `viewer`. Lo usa `deploy-hub-api` para desplegar.
 
-Secretos de cada ambiente: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y el token de dispatch (un mismo valor que se carga con 5 nombres distintos).
+Secretos de cada ambiente, todos en `deploy-hub-api`: `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. En `prod` y `dev` se suma `APP_REPO_TOKEN` (para subir los tags de git a las apps). En `local` se suma `DISPATCH_DEPLOY_HUB_API_LOCAL`, un token que se carga en cada app para que dispare el deploy de local.
 
 ---
 
@@ -155,20 +155,20 @@ Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo comm
 4. Tag: `tag:continuous-integration`.
 5. Copiar **Client ID** y **Client Secret**; el secret se muestra una sola vez.
 
-### Dispatch tokens
+### APP_REPO_TOKEN
 
-Un Personal Access Token **fine-grained**, acotado solo a `deploy-hub-api`:
+Lo usa `deploy.yml` para clonar la app y crear y subir el tag de git `new_tag` en el repo de la app (job `build-and-push`). Se carga en `deploy-hub-api`, no en las apps. Es un Personal Access Token **fine-grained**:
 
 1. **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-   - Token name: `dispatch-deploy-hub-api-prod`.
-   - Description: `Dispara el workflow de deploy en deploy-hub-api desde los repos de apps (prod)`.
-   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla.
-2. Resource owner: la **organización** a la que pertenece `deploy-hub-api` (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
-3. Repository access: solo `deploy-hub-api`.
-4. Permissions: `Actions` Read and write, `Contents` Read-only (el workflow solo dispara y sigue el deploy con `gh workflow run` y `gh run watch`; no hace push, así que no necesita escritura en `Contents`).
+   - Token name: `app-repo-token-prod`.
+   - Description: `Sube los tags de git de las apps desde deploy-hub-api (prod)`.
+   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla al crear el tag.
+2. Resource owner: la **organización** a la que pertenecen las apps (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
+3. Repository access: **Only select repositories** y elegir los 5 repos de apps: `iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api`. No hace falta `deploy-hub-api`.
+4. Permissions: `Contents` Read and write (necesario para subir el tag). Nada más.
 5. Copiar el token al generarlo.
 
-Este mismo valor se carga en los 5 repos de apps.
+Con escritura en `Contents`, el token también podría pushear código a esos repos. Para limitar el daño si se filtra, protege las ramas `dev` y `master` de las apps (PR obligatorio).
 
 ---
 
@@ -310,20 +310,20 @@ Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo comm
 4. Tag: `tag:continuous-integration`.
 5. Copiar **Client ID** y **Client Secret**; el secret se muestra una sola vez.
 
-### Dispatch tokens
+### APP_REPO_TOKEN
 
-Un Personal Access Token **fine-grained**, acotado solo a `deploy-hub-api`:
+Lo usa `deploy.yml` para clonar la app y crear y subir el tag de git `new_tag` en el repo de la app (job `build-and-push`). Se carga en `deploy-hub-api`, no en las apps. Es un Personal Access Token **fine-grained**:
 
 1. **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-   - Token name: `dispatch-deploy-hub-api-dev`.
-   - Description: `Dispara el workflow de deploy en deploy-hub-api desde los repos de apps (dev)`.
-   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla.
-2. Resource owner: la **organización** a la que pertenece `deploy-hub-api` (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
-3. Repository access: solo `deploy-hub-api`.
-4. Permissions: `Actions` Read and write, `Contents` Read-only (el workflow solo dispara y sigue el deploy con `gh workflow run` y `gh run watch`; no hace push, así que no necesita escritura en `Contents`).
+   - Token name: `app-repo-token-dev`.
+   - Description: `Sube los tags de git de las apps desde deploy-hub-api (dev)`.
+   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla al crear el tag.
+2. Resource owner: la **organización** a la que pertenecen las apps (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
+3. Repository access: **Only select repositories** y elegir los 5 repos de apps: `iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api`. No hace falta `deploy-hub-api`.
+4. Permissions: `Contents` Read and write (necesario para subir el tag). Nada más.
 5. Copiar el token al generarlo.
 
-Este mismo valor se carga en los 5 repos de apps.
+Con escritura en `Contents`, el token también podría pushear código a esos repos. Para limitar el daño si se filtra, protege las ramas `dev` y `master` de las apps (PR obligatorio).
 
 ---
 
@@ -334,7 +334,7 @@ Este mismo valor se carga en los 5 repos de apps.
 - `DOCKERHUB_USERNAME`: username de la cuenta en [hub.docker.com](https://hub.docker.com/).
 - `DOCKERHUB_TOKEN`: Personal Access Token (no la contraseña):
   1. **Account settings → Personal access tokens → Generate new token** (menú lateral izquierdo de [app.docker.com/settings](https://app.docker.com/settings)).
-  2. Descripción (ej. `github-actions-local`) y permisos **Read, Write & Delete** (Delete es necesario porque el job `cleanup-tags` elimina los tags anteriores en Docker Hub).
+  2. Descripción (ej. `github-actions-local`) y permisos **Read & Write** (en local no hace falta Delete: el flujo de local no borra tags de Docker Hub).
   3. Copiar el token al generarlo; no se vuelve a mostrar.
 
 ### KUBECONFIG_MICROK8S
@@ -465,19 +465,21 @@ Deja el archivo en la carpeta desde la que vas a cargar los secretos. No lo comm
 4. Tag: `tag:continuous-integration`.
 5. Copiar **Client ID** y **Client Secret**; el secret se muestra una sola vez.
 
-### Dispatch tokens
+### DISPATCH_DEPLOY_HUB_API_LOCAL
 
-Un Personal Access Token **fine-grained**, acotado solo a `deploy-hub-api`:
+Lo usa el workflow de cada app (`release-<app>-local.yml`) para disparar el deploy de local en `deploy-hub-api` con `gh workflow run`. Se carga en cada app, en su Environment `local`. Es un Personal Access Token **fine-grained**, acotado solo a `deploy-hub-api`:
 
 1. **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
    - Token name: `dispatch-deploy-hub-api-local`.
    - Description: `Dispara el workflow de deploy en deploy-hub-api desde los repos de apps (local)`.
-   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy falla.
+   - Expiration: definir una fecha (ej. 90 días) y anotarla; al vencer, el deploy de local deja de dispararse.
 2. Resource owner: la **organización** a la que pertenece `deploy-hub-api` (no tu usuario personal). Si la organización exige aprobación de tokens, aprobarlo en **Organization settings → Personal access tokens → Pending requests**.
 3. Repository access: solo `deploy-hub-api`.
-4. Permissions: `Actions` Read and write, `Contents` Read-only (el workflow solo dispara el deploy con `gh workflow run`, igual que en dev y prod; no hace push, así que no necesita escritura en `Contents`).
+4. Permissions: `Actions` Read and write, `Contents` Read-only (el workflow solo dispara el deploy con `gh workflow run`; no hace push, así que no necesita escritura en `Contents`).
 5. Copiar el token al generarlo.
 
-Este mismo valor se carga en los 5 repos de apps.
+Este mismo valor se carga en los 5 repos de apps, con el nombre `DISPATCH_DEPLOY_HUB_API_LOCAL`.
 
 ---
+
+<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

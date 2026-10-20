@@ -1,6 +1,6 @@
 # Primer deploy de las apps en los 3 ambientes
 
-Deja `iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api` corriendo por primera vez en MicroK8s, en cada ambiente (local, dev y prod). GitHub Actions compila y publica la imagen, y `deploy-hub-api` aplica los manifiestos en el cluster de la VM de ese ambiente, usando el secreto `<AMBIENTE>_KUBECONFIG_MICROK8S`.
+Deja `iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api` corriendo por primera vez en MicroK8s, en cada ambiente (local, dev y prod). Todo el flujo corre en `deploy-hub-api`: GitHub Actions compila y publica la imagen y aplica los manifiestos en el cluster de la VM de ese ambiente, usando el secreto `KUBECONFIG_MICROK8S` del Environment correspondiente.
 
 ## 1. Prerequisitos
 
@@ -32,12 +32,12 @@ Termina un ambiente completo antes de pasar al siguiente: primero local, despué
 | Ambiente | VM | Rama | Prefijo del namespace | `previous_stable_tag` | `new_tag` | Aprobación manual |
 |---|---|---|---|---|---|---|
 | Local | `pcbox-local` | `local` | `local-` | no aplica | no aplica | No |
-| Desarrollo | `pcbox-dev` | `dev` | `dev-` | `dev-v0.1.0` | `dev-v0.1.1` | No |
+| Desarrollo | `pcbox-dev` | `dev` | `dev-` | `dev-v0.1.0` | `dev-v0.1.1` | Sí |
 | Producción | `pcbox-prod` | rama principal | `prod-` | `prod-v0.1.0` | `prod-v0.1.1` | Sí |
 
-En local el workflow se dispara con un push a la rama `local` y publica siempre la imagen con el tag `local`, así que no usa tags de versión. `previous_stable_tag` (dev y prod) es el tag inicial que creaste en [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md). `new_tag` es la primera versión real y no debe existir todavía. Si ya la usaste, elige el siguiente número.
+En local el flujo arranca con un push a la rama `local` de la app, que solo dispara el deploy en `deploy-hub-api`, y publica siempre la imagen con el tag `local`, así que no usa tags de versión. En dev y prod el flujo arranca siempre con los dos tags: `previous_stable_tag` (dev y prod) es el tag inicial que creaste en [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md). `new_tag` es la primera versión real y no debe existir todavía. Si ya la usaste, elige el siguiente número.
 
-## 4. Disparar el release
+## 4. Disparar el deploy
 
 Requiere la CLI de GitHub (`gh`) con sesión iniciada (`gh auth login`). Reemplaza `<tu-organizacion>` y pega:
 
@@ -45,157 +45,157 @@ Requiere la CLI de GitHub (`gh`) con sesión iniciada (`gh auth login`). Reempla
 ORG=<tu-organizacion>
 ```
 
-Ejecuta las apps en el orden de la sección 2 y espera a que termine cada una antes de lanzar la siguiente: `gh run watch` sigue la ejecución hasta el final. Si falla, muestra el error y puedes seguir en la pestaña **Actions** del repositorio.
+Ejecuta las apps en el orden de la sección 2 y espera a que termine cada una antes de lanzar la siguiente: `gh run watch` sigue la ejecución hasta el final. Todas las ejecuciones corren en `deploy-hub-api`, así que ahí se sigue el progreso. Si falla, muestra el error y puedes seguir en la pestaña **Actions** de `deploy-hub-api`.
 
 Termina un ambiente completo antes de pasar al siguiente.
 
 ### 4.1. Local
 
-El workflow arranca con un push a `local`. Cada comando crea un commit vacío (no cambia código) para dispararlo. Los clones deben tener la rama `local` al día (`git pull origin local`).
+El flujo arranca con un push a `local` de la app: el workflow de la app solo dispara `deploy-<app>-local.yml` en `deploy-hub-api`, y ahí se compila, publica y despliega. Cada comando crea un commit vacío (no cambia código) para dispararlo y después sigue la ejecución de `deploy-hub-api`. Los clones deben tener la rama `local` al día (`git pull origin local`).
 
 #### iam-api
 
 ```bash
 git -C iam-api checkout local
-git -C iam-api commit --allow-empty -m "chore: trigger local release"
+git -C iam-api commit --allow-empty -m "chore: trigger local deploy"
 git -C iam-api push origin local
-sleep 5
-gh run watch --repo "$ORG/iam-api" $(gh run list --repo "$ORG/iam-api" --workflow release-iam-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 15
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### infra-hub-api
 
 ```bash
 git -C infra-hub-api checkout local
-git -C infra-hub-api commit --allow-empty -m "chore: trigger local release"
+git -C infra-hub-api commit --allow-empty -m "chore: trigger local deploy"
 git -C infra-hub-api push origin local
-sleep 5
-gh run watch --repo "$ORG/infra-hub-api" $(gh run list --repo "$ORG/infra-hub-api" --workflow release-infra-hub-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 15
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-infra-hub-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub-api
 
 ```bash
 git -C ticket-hub-api checkout local
-git -C ticket-hub-api commit --allow-empty -m "chore: trigger local release"
+git -C ticket-hub-api commit --allow-empty -m "chore: trigger local deploy"
 git -C ticket-hub-api push origin local
-sleep 5
-gh run watch --repo "$ORG/ticket-hub-api" $(gh run list --repo "$ORG/ticket-hub-api" --workflow release-ticket-hub-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 15
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-api-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### iam
 
 ```bash
 git -C iam checkout local
-git -C iam commit --allow-empty -m "chore: trigger local release"
+git -C iam commit --allow-empty -m "chore: trigger local deploy"
 git -C iam push origin local
-sleep 5
-gh run watch --repo "$ORG/iam" $(gh run list --repo "$ORG/iam" --workflow release-iam-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 15
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub
 
 ```bash
 git -C ticket-hub checkout local
-git -C ticket-hub commit --allow-empty -m "chore: trigger local release"
+git -C ticket-hub commit --allow-empty -m "chore: trigger local deploy"
 git -C ticket-hub push origin local
-sleep 5
-gh run watch --repo "$ORG/ticket-hub" $(gh run list --repo "$ORG/ticket-hub" --workflow release-ticket-hub-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+sleep 15
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-local.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 ### 4.2. Desarrollo
 
-Antes del deploy, el job `gate` pide la aprobación manual del Environment `development-approver`: abre la ejecución en GitHub y pulsa **Review deployments** → **Approve and deploy**. `gh run watch` queda esperando hasta que la apruebes.
+Lanza el workflow desde la rama `dev` de `deploy-hub-api` (`--ref dev`): el job `validate-branch` rechaza cualquier otra. Antes del deploy, el job `gate` pide la aprobación manual del Environment `development-approver` de `deploy-hub-api`: abre la ejecución en GitHub y pulsa **Review deployments** → **Approve and deploy**. `gh run watch` queda esperando hasta que la apruebes.
 
 #### iam-api
 
 ```bash
-gh workflow run release-iam-api-dev.yml --repo "$ORG/iam-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
+gh workflow run deploy-iam-api-dev.yml --repo "$ORG/deploy-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam-api" $(gh run list --repo "$ORG/iam-api" --workflow release-iam-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### infra-hub-api
 
 ```bash
-gh workflow run release-infra-hub-api-dev.yml --repo "$ORG/infra-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
+gh workflow run deploy-infra-hub-api-dev.yml --repo "$ORG/deploy-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/infra-hub-api" $(gh run list --repo "$ORG/infra-hub-api" --workflow release-infra-hub-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-infra-hub-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub-api
 
 ```bash
-gh workflow run release-ticket-hub-api-dev.yml --repo "$ORG/ticket-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
+gh workflow run deploy-ticket-hub-api-dev.yml --repo "$ORG/deploy-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub-api" $(gh run list --repo "$ORG/ticket-hub-api" --workflow release-ticket-hub-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-api-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### iam
 
 ```bash
-gh workflow run release-iam-dev.yml --repo "$ORG/iam" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
+gh workflow run deploy-iam-dev.yml --repo "$ORG/deploy-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam" $(gh run list --repo "$ORG/iam" --workflow release-iam-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub
 
 ```bash
-gh workflow run release-ticket-hub-dev.yml --repo "$ORG/ticket-hub" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
+gh workflow run deploy-ticket-hub-dev.yml --repo "$ORG/deploy-hub-api" --ref dev -f previous_stable_tag=dev-v0.1.0 -f new_tag=dev-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub" $(gh run list --repo "$ORG/ticket-hub" --workflow release-ticket-hub-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-dev.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 ### 4.3. Producción
 
-Igual que en dev, el job `gate` pide la aprobación del Environment `production-approver`: **Review deployments** → **Approve and deploy**.
+Lanza el workflow desde la rama `master` de `deploy-hub-api` (`--ref master`). Igual que en dev, el job `gate` pide la aprobación del Environment `production-approver` de `deploy-hub-api`: **Review deployments** → **Approve and deploy**.
 
 #### iam-api
 
 ```bash
-gh workflow run release-iam-api-prod.yml --repo "$ORG/iam-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run deploy-iam-api-prod.yml --repo "$ORG/deploy-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam-api" $(gh run list --repo "$ORG/iam-api" --workflow release-iam-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### infra-hub-api
 
 ```bash
-gh workflow run release-infra-hub-api-prod.yml --repo "$ORG/infra-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run deploy-infra-hub-api-prod.yml --repo "$ORG/deploy-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/infra-hub-api" $(gh run list --repo "$ORG/infra-hub-api" --workflow release-infra-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-infra-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub-api
 
 ```bash
-gh workflow run release-ticket-hub-api-prod.yml --repo "$ORG/ticket-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run deploy-ticket-hub-api-prod.yml --repo "$ORG/deploy-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub-api" $(gh run list --repo "$ORG/ticket-hub-api" --workflow release-ticket-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-api-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### iam
 
 ```bash
-gh workflow run release-iam-prod.yml --repo "$ORG/iam" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run deploy-iam-prod.yml --repo "$ORG/deploy-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/iam" $(gh run list --repo "$ORG/iam" --workflow release-iam-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-iam-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
 #### ticket-hub
 
 ```bash
-gh workflow run release-ticket-hub-prod.yml --repo "$ORG/ticket-hub" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
+gh workflow run deploy-ticket-hub-prod.yml --repo "$ORG/deploy-hub-api" --ref master -f previous_stable_tag=prod-v0.1.0 -f new_tag=prod-v0.1.1
 sleep 5
-gh run watch --repo "$ORG/ticket-hub" $(gh run list --repo "$ORG/ticket-hub" --workflow release-ticket-hub-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run watch --repo "$ORG/deploy-hub-api" $(gh run list --repo "$ORG/deploy-hub-api" --workflow deploy-ticket-hub-prod.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 ```
 
-El workflow compila y publica la imagen, crea el tag de git y dispara `deploy-<app>.yml` (o `deploy-<app>-dev.yml`) en `deploy-hub-api`. Sigue el rollout en la pestaña **Actions** de `deploy-hub-api`.
+El workflow valida los tags (`previous_stable_tag` debe existir y `new_tag` no), prueba el código, compila y publica la imagen, crea el tag `new_tag` en el repo de la app y, tras la aprobación, despliega y deja en Docker Hub solo esos dos tags. Sigue todo en la pestaña **Actions** de `deploy-hub-api`.
 
-### Si el dispatch automático falla
+### Si el deploy automático falla
 
-Aplica los manifiestos directo en la VM del ambiente. Reemplaza a mano los placeholders `DOCKERHUB_USER` e `IMAGE_TAG` en el `deployment.yaml` de la app y copia la carpeta de manifiestos a la VM. Ejemplo con `dev`; repite con `local` y `prod` usando su llave y su VM:
+Si el workflow falla en el deploy (por ejemplo, el cluster no responde) y necesitas salir del paso, aplica los manifiestos directo en la VM del ambiente. Reemplaza a mano los placeholders `DOCKERHUB_USER` e `IMAGE_TAG` en el `deployment.yaml` de la app y copia la carpeta de manifiestos a la VM. Ejemplo con `dev`; repite con `local` y `prod` usando su llave y su VM:
 
 ```bash
 scp -i ~/.ssh/pcbox_dev -r deploy-hub-api/.github/workflows/<app>/manifests ubuntu@pcbox-dev:~/
@@ -291,3 +291,5 @@ Cada app responde dentro del cluster de su VM en `<app>.<namespace>.svc.cluster.
 | `ticket-hub-api` | `ticket-hub-api.ticket-hub-api` |
 
 Agrega `.svc.cluster.local:3000` a cada valor.
+
+<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

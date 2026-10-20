@@ -2,7 +2,7 @@
 
 ## Qué es
 
-Las pruebas automáticas del ecosistema. Hay tres tipos, y los workflows de release las ejecutan **antes de publicar la imagen**: si algo falla, no se publica ni se despliega ([workflow.md](workflow.md)).
+Las pruebas automáticas del ecosistema. Hay tres tipos, y los workflows de dev y prod las ejecutan **antes de publicar la imagen**: si algo falla, no se publica ni se despliega ([workflow.md](workflow.md)).
 
 | Tipo | Qué prueba | Herramienta | Dónde vive | Archivos |
 |---|---|---|---|---|
@@ -33,9 +33,9 @@ Las pruebas automáticas del ecosistema. Hay tres tipos, y los workflows de rele
 | 3 | Se ejecutan los tests unitarios | `npm test` |
 | 4 | Se ejecutan los tests e2e con la app real | `npm run test:e2e` |
 | 5 | Se construye y publica la imagen | Job `build-and-push` ([workflow.md](workflow.md)) |
-| 6 | Se despliega | Job `dispatch` ([workflow.md](workflow.md)) |
+| 6 | Se despliega, tras la aprobación manual | Job `deploy` ([workflow.md](workflow.md)) |
 
-Los pasos 1 a 4 son el job `quality` del workflow de release. Los frontends ejecutan los pasos 1 a 3.
+Los pasos 1 a 4 son el job `quality` de `deploy.yml`, en `deploy-hub-api`. Los frontends ejecutan los pasos 1 a 3: su workflow pasa `run_e2e_tests: false`. El flujo de local no ejecuta tests.
 
 ## Estructura de carpetas
 
@@ -135,7 +135,7 @@ Desde la carpeta de cada API o frontend:
 | Config de e2e | `<api>/test/jest-e2e.json` |
 | Utilidades de e2e | `<api>/test/helpers/` |
 | Config de frontends | `<frontend>/vitest.config.ts` |
-| Ejecución automática | Job `quality` en `<app>/.github/workflows/release-*.yml` |
+| Ejecución automática | Job `quality` en `deploy-hub-api/.github/workflows/deploy.yml` |
 
 ## Por qué esta organización
 

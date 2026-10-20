@@ -77,3 +77,9 @@ ticket-hub-api     ticket-hub-api   0   1m
 `0` en la columna `SECRETS` es lo esperado: desde Kubernetes 1.24 no se crea un Secret con token para cada serviceaccount.
 
 Si algún comando devuelve `Error from server (NotFound): namespaces "..." not found`, falta crear ese namespace en esa VM.
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>

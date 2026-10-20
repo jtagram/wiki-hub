@@ -132,3 +132,9 @@ ADMIN_EMAIL=
 ADMIN_PASSWORD=
 ADMIN_PASSWORD_HASH=
 ```
+
+<div align="right">
+
+[← Back](../set-up-the-ecosystem-jtagram.md)
+
+</div>

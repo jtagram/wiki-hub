@@ -374,3 +374,9 @@ ticket-hub-api-service-credentials   Opaque   2      10s
 rm jwt_private.pem jwt_public.pem server_ssh_key
 exit
 ```
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>

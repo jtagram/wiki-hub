@@ -20,9 +20,9 @@ Sigue los pasos en este orden. Cada uno da por hecho que los anteriores ya se co
 11. [create-databases-for-three-environments.md](create-databases-for-three-environments.md): desplegar PostgreSQL y crear las bases y tablas en cada ambiente.
 12. [initialize-values-in-the-database-for-three-environments.md](initialize-values-in-the-database-for-three-environments.md): insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente.
 13. [clone-organization-repositories.md](clone-organization-repositories.md): clonar los repositorios de la organización `jtagram` a tu organización de GitHub.
-14. [create-environment-in-github.md](create-environment-in-github.md): crear los environments de GitHub (`prod`, `dev`, `local` con secretos; `production-approver` y `development-approver` solo con la aprobación manual).
+14. [create-environment-in-github.md](create-environment-in-github.md): crear los environments de GitHub: en `deploy-hub-api`, `prod`, `dev` y `local` con secretos y `production-approver` y `development-approver` solo con la aprobación manual; en cada app, solo `local`.
 15. [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md): obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos.
-16. [load-secrets-for-github-action-for-three-environments.md](load-secrets-for-github-action-for-three-environments.md): cargar esos valores por CLI como Environment secrets de cada ambiente.
+16. [load-secrets-for-github-action-for-three-environments.md](load-secrets-for-github-action-for-three-environments.md): cargar esos valores por CLI como Environment secrets: casi todos en `deploy-hub-api`, y en cada app solo el token con el que dispara el deploy de local.
 17. [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md): crear el primer tag en GitHub y Docker Hub.
 18. [first-deploy-for-three-environments.md](first-deploy-for-three-environments.md): hacer el primer deploy de cada app en cada ambiente.
 19. [expose-apps-to-tailscale-network-for-three-environments.md](expose-apps-to-tailscale-network-for-three-environments.md): exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS.

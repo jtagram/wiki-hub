@@ -73,3 +73,9 @@ exit
 ```
 
 Debe aparecer el nodo `prod` en estado `Ready`.
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>

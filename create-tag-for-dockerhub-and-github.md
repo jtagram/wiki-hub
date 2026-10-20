@@ -1,6 +1,6 @@
 # Crear el primer tag en GitHub y Docker Hub
 
-`release-<app>.yml` pide `previous_stable_tag` (debe **existir ya**, en git y en Docker Hub) y `new_tag` (debe **no existir todavía**). En el primer release no hay un tag anterior real, así que se crea a mano antes de disparar el workflow. Si no, el job `validate` falla.
+Los workflows de dev y prod (`deploy-<app>-dev.yml` y `deploy-<app>-prod.yml`, en `deploy-hub-api`) arrancan siempre con dos tags: `previous_stable_tag` (debe **existir ya**, en el repo de la app en git y en Docker Hub) y `new_tag` (debe **no existir todavía**). En el primer deploy no hay un tag anterior real, así que se crea a mano antes de disparar el workflow. Si no, falla el job `validate-tags-github` o `validate-tags-dockerhub`.
 
 Se hace una vez por app y por ambiente.
 
@@ -319,12 +319,14 @@ docker manifest inspect "$DOCKERHUB_USERNAME/ticket-hub-api:prod-v0.1.0" > /dev/
 
 Debe imprimir `OK` 15 veces (5 apps × 3 tags). Si algún tag no existe, aparece `no such manifest`. También puedes revisarlo en la web: `https://hub.docker.com/r/<DOCKERHUB_USERNAME>/<app>/tags`.
 
-## 5. Usar los tags en el primer release
+## 5. Usar los tags en el primer deploy
 
-Al disparar el workflow por primera vez, usa como `previous_stable_tag` el tag que acabas de crear para ese ambiente y un `new_tag` distinto del mismo ambiente:
+Al disparar por primera vez el workflow de dev o prod en `deploy-hub-api`, usa como `previous_stable_tag` el tag que acabas de crear para ese ambiente y un `new_tag` distinto del mismo ambiente. En local no se usan: cada push a `local` publica la imagen con el tag fijo `local` y el `local-v0.1.0` es solo el tag semilla.
 
 | Ambiente | `previous_stable_tag` | `new_tag` |
 |---|---|---|
-| Local | `local-v0.1.0` | `local-v0.1.1` |
+| Local | no aplica | no aplica (usa el tag fijo `local`) |
 | Desarrollo | `dev-v0.1.0` | `dev-v0.1.1` |
 | Producción | `prod-v0.1.0` | `prod-v0.1.1` |
+
+<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

@@ -122,3 +122,9 @@ ssh -o PubkeyAuthentication=no ubuntu@pcbox-prod 'echo OK'
 ```
 
 `ubuntu` es el usuario por defecto de las VMs de Multipass.
+
+<div align="right">
+
+[← Back](set-up-the-ecosystem-jtagram.md)
+
+</div>
