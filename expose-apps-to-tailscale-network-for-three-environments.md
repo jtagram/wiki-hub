@@ -532,6 +532,6 @@ Debe responder una línea `HTTP/2` con un código de la app (por ejemplo `200` o
 
 ## Nota de seguridad
 
-Las 3 APIs (`iam-api`, `infra-hub-api`, `ticket-hub-api`) quedan alcanzables desde toda la tailnet. Con las ACL por defecto, todos los nodos se ven entre sí. Si solo quieres exponer los frontends (`iam` y `ticket-hub`), omite las APIs en el paso 6.
+Las 3 APIs (`iam-api`, `infra-hub-api`, `ticket-hub-api`) quedan alcanzables desde toda la tailnet. Con las ACL por defecto, todos los nodos se ven entre sí. Tenlo presente al definir las ACL de tu tailnet.
 
 <p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>

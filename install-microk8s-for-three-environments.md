@@ -6,7 +6,7 @@ Necesitas el acceso por llave a las 3 VMs — [configure-access-key-for-three-en
 
 Todos los comandos se ejecutan desde tu PC cliente, dentro de cada VM.
 
-Se habilita el addon `rbac`. Sin él, MicroK8s autoriza todo (`AlwaysAllow`) y los permisos que se crean en [create-users-with-permissions-for-three-environments.md](create-users-with-permissions-for-three-environments.md) no se aplican: cualquier usuario tendría acceso total. Tras habilitarlo se reinicia `kubelite` para que el API server cargue la configuración nueva, y en `microk8s status` debe aparecer `rbac` en `enabled`.
+Se habilita el addon `rbac`. Sin él, MicroK8s autoriza todo (`AlwaysAllow`) y los permisos que se crean en [create-roles-for-three-environments.md](create-roles-for-three-environments.md) y [create-rolebindings-for-three-environments.md](create-rolebindings-for-three-environments.md) no se aplican: cualquier usuario tendría acceso total. Tras habilitarlo se reinicia `kubelite` para que el API server cargue la configuración nueva, y en `microk8s status` debe aparecer `rbac` en `enabled`.
 
 ## local
 

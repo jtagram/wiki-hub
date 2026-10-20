@@ -4,7 +4,7 @@ Inserta en la base `iam_api` de cada VM los datos mínimos para usar el sistema 
 
 Necesitas:
 
-- Bases y tablas creadas en las 3 VMs — [create-databases-for-three-environments.md](create-databases-for-three-environments.md).
+- Bases y tablas creadas en las 3 VMs — [create-databases-for-three-environments.md](create-databases-for-three-environments.md) y [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
 - El bloque de cada ambiente generado por [main.sh](generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md). Cada ambiente tiene su propio bloque, con valores distintos.
 
 ## Valores aleatorios a agregar

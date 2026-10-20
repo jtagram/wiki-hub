@@ -13,7 +13,9 @@ Antes de empezar debe estar hecho, en este orden:
 5. Secrets de GitHub Actions — [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md).
 6. Primer tag en git y Docker Hub — [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md).
 7. Environments de GitHub — [create-environment-in-github.md](create-environment-in-github.md).
-8. Bases de datos creadas — [create-databases-for-three-environments.md](create-databases-for-three-environments.md).
+8. PostgreSQL desplegado — [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md).
+9. Bases de datos creadas — [create-databases-for-three-environments.md](create-databases-for-three-environments.md).
+10. Tablas creadas — [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
 
 ## 2. Orden de las apps
 

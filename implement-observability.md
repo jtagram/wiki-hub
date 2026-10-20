@@ -10,7 +10,7 @@ Necesitas:
 
 - Los kubeconfig de **administración** de las 3 VMs (`pcbox-kubeconfig-local.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-prod.yaml`), generados en [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md).
 - `kubectl` y `helm` en tu PC cliente, conectada a la tailnet.
-- El addon `hostpath-storage` habilitado en las 3 VMs (se habilita en [create-databases-for-three-environments.md](create-databases-for-three-environments.md)).
+- El addon `hostpath-storage` habilitado en las 3 VMs (se habilita en [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md)).
 - Para entrar a Grafana por URL: el operator de Tailscale instalado en las 3 VMs — [expose-apps-to-tailscale-network-for-three-environments.md](expose-apps-to-tailscale-network-for-three-environments.md).
 
 Todos los comandos se ejecutan desde tu PC cliente, en la carpeta donde guardaste los kubeconfig. No entres por SSH a las VMs: `helm` y `kubectl` hablan con el cluster de cada VM a través de `--kubeconfig`, por la tailnet.
