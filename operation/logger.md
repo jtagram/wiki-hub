@@ -28,7 +28,7 @@ Un módulo de logging estructurado (JSON) basado en [`nestjs-pino`](https://gith
 | 5 | Loki los almacena | `loki-values.yaml` |
 | 6 | Grafana los muestra | `grafana-values.yaml` |
 
-Los pasos 4-6 se instalan en [implement-observability.md](../implement-observability.md).
+Los pasos 4-6 se instalan en [implement-observability.md](../06-deploy-and-operation/implement-observability.md).
 
 ### URL de Grafana
 
@@ -40,7 +40,7 @@ Cada ambiente tiene su propio Grafana, accesible solo desde la tailnet:
 | dev | `https://dev-grafana.tu-tailnet.ts.net` |
 | prod | `https://prod-grafana.tu-tailnet.ts.net` |
 
-Reemplaza `tu-tailnet` por el nombre de tu tailnet. Usuario `admin`; la contraseña se generó al instalar (recuperarla: paso 3 de [implement-observability.md](../implement-observability.md)).
+Reemplaza `tu-tailnet` por el nombre de tu tailnet. Usuario `admin`; la contraseña se generó al instalar (recuperarla: paso 3 de [implement-observability.md](../06-deploy-and-operation/implement-observability.md)).
 
 Para ver los logs: menú **Explore** → fuente de datos **Loki** → por ejemplo `{namespace="iam-api"} | json | level >= 50` (solo errores).
 

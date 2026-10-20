@@ -80,6 +80,6 @@ origin  https://github.com/<NUEVA_ORG>/iam-api.git (push)
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

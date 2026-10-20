@@ -45,7 +45,7 @@ prod     Running   10.x.x.x        Ubuntu 24.04 LTS
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>
 

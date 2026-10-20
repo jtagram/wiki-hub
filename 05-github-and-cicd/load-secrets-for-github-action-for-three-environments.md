@@ -142,4 +142,4 @@ echo "ticket-hub-api"; gh secret list --env local --repo "$ORG/ticket-hub-api"
 
 `deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar solo `DISPATCH_DEPLOY_HUB_API_LOCAL`.
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

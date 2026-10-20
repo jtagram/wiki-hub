@@ -12,7 +12,7 @@ Los cambios en el cluster (deploys, escalado, borrado) pasan por la ticketera. L
 
 Necesitas:
 
-- Namespaces creados en las 3 VMs, incluido `microk8s-access` — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
+- Namespaces creados en las 3 VMs, incluido `microk8s-access` — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 - Tu PC cliente con `kubectl` y conectada a la tailnet.
 
 Mientras no existan los roles y sus asignaciones, el usuario recibe `Forbidden` en cualquier operación. Es lo esperado: no lo uses hasta completar [create-rolebindings-for-three-environments.md](create-rolebindings-for-three-environments.md).
@@ -300,4 +300,4 @@ scp -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod:~/pcbox-kubeconfig-viewer-prod.yaml .
 | `viewer-secrets-editor-token` | Secret con el token de cada usuario | Fuente del token. Para revocar el acceso, bórralo |
 | `pcbox-kubeconfig-viewer-<ambiente>.yaml` | Kubeconfig del usuario | Lo que usa la PC cliente para conectarse |
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

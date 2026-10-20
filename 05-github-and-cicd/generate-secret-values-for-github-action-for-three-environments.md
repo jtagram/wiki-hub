@@ -7,7 +7,7 @@ Los secretos **no llevan prefijo de ambiente**: tienen el mismo nombre en los tr
 Necesitas:
 
 - Repositorios clonados — [clone-organization-repositories.md](clone-organization-repositories.md).
-- Las 3 VMs con MicroK8s y el certificado del API server extendido con su IP de Tailscale — sección "Certificado del API server" de [create-users-for-three-environments.md](create-users-for-three-environments.md). Sin eso, el kubeconfig de abajo no puede conectarse.
+- Las 3 VMs con MicroK8s y el certificado del API server extendido con su IP de Tailscale — sección "Certificado del API server" de [create-users-for-three-environments.md](../03-cluster-secrets-and-access/create-users-for-three-environments.md). Sin eso, el kubeconfig de abajo no puede conectarse.
 
 El kubeconfig de cada ambiente es el del ServiceAccount `deployer` de esa VM, con permisos limitados a desplegar las apps. No es el de administración ni el de solo lectura del usuario `viewer`. Lo usa `deploy-hub-api` para desplegar.
 
@@ -482,4 +482,4 @@ Este mismo valor se carga en los 5 repos de apps, con el nombre `DISPATCH_DEPLOY
 
 ---
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

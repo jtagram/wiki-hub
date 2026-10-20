@@ -9,7 +9,7 @@ Necesitas:
 
 ## Archivos usados
 
-Están en la carpeta [create-tables/](create-tables/):
+Están en la carpeta [create-tables/](create-tables):
 
 | Archivo | Qué hace |
 |---|---|
@@ -142,4 +142,4 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
 exit
 ```
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

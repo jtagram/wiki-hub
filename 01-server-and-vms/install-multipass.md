@@ -33,6 +33,6 @@ multipassd  1.14.0
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

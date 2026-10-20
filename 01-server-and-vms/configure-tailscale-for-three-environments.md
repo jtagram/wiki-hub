@@ -49,6 +49,6 @@ Deben aparecer `pcbox-local`, `pcbox-dev` y `pcbox-prod`, cada uno con su IP `10
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

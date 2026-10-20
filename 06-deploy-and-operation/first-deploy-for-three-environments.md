@@ -6,16 +6,16 @@ Deja `iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api` corriend
 
 Antes de empezar debe estar hecho, en este orden:
 
-1. Repositorios clonados — [clone-organization-repositories.md](clone-organization-repositories.md).
-2. Namespaces — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
-3. Secrets en MicroK8s — [create-secrets-for-three-environments.md](create-secrets-for-three-environments.md).
-4. ServiceAccounts — [create-serviceaccounts-for-three-environments.md](create-serviceaccounts-for-three-environments.md).
-5. Secrets de GitHub Actions — [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md).
-6. Primer tag en git y Docker Hub — [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md).
-7. Environments de GitHub — [create-environment-in-github.md](create-environment-in-github.md).
-8. PostgreSQL desplegado — [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md).
-9. Bases de datos creadas — [create-databases-for-three-environments.md](create-databases-for-three-environments.md).
-10. Tablas creadas — [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
+1. Repositorios clonados — [clone-organization-repositories.md](../05-github-and-cicd/clone-organization-repositories.md).
+2. Namespaces — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
+3. Secrets en MicroK8s — [create-secrets-for-three-environments.md](../03-cluster-secrets-and-access/create-secrets-for-three-environments.md).
+4. ServiceAccounts — [create-serviceaccounts-for-three-environments.md](../03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md).
+5. Secrets de GitHub Actions — [generate-secret-values-for-github-action-for-three-environments.md](../05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md).
+6. Primer tag en git y Docker Hub — [create-tag-for-dockerhub-and-github.md](../05-github-and-cicd/create-tag-for-dockerhub-and-github.md).
+7. Environments de GitHub — [create-environment-in-github.md](../05-github-and-cicd/create-environment-in-github.md).
+8. PostgreSQL desplegado — [deploy-postgres-for-three-environments.md](../04-database/deploy-postgres-for-three-environments.md).
+9. Bases de datos creadas — [create-databases-for-three-environments.md](../04-database/create-databases-for-three-environments.md).
+10. Tablas creadas — [create-tables-for-three-environments.md](../04-database/create-tables-for-three-environments.md).
 
 ## 2. Orden de las apps
 
@@ -37,7 +37,7 @@ Termina un ambiente completo antes de pasar al siguiente: primero local, despué
 | Desarrollo | `pcbox-dev` | `dev` | `dev-` | `dev-v0.1.0` | `dev-v0.1.1` | Sí |
 | Producción | `pcbox-prod` | rama principal | `prod-` | `prod-v0.1.0` | `prod-v0.1.1` | Sí |
 
-En local el flujo arranca con un push a la rama `local` de la app, que solo dispara el deploy en `deploy-hub-api`, y publica siempre la imagen con el tag `local`, así que no usa tags de versión. En dev y prod el flujo arranca siempre con los dos tags: `previous_stable_tag` (dev y prod) es el tag inicial que creaste en [create-tag-for-dockerhub-and-github.md](create-tag-for-dockerhub-and-github.md). `new_tag` es la primera versión real y no debe existir todavía. Si ya la usaste, elige el siguiente número.
+En local el flujo arranca con un push a la rama `local` de la app, que solo dispara el deploy en `deploy-hub-api`, y publica siempre la imagen con el tag `local`, así que no usa tags de versión. En dev y prod el flujo arranca siempre con los dos tags: `previous_stable_tag` (dev y prod) es el tag inicial que creaste en [create-tag-for-dockerhub-and-github.md](../05-github-and-cicd/create-tag-for-dockerhub-and-github.md). `new_tag` es la primera versión real y no debe existir todavía. Si ya la usaste, elige el siguiente número.
 
 ## 4. Disparar el deploy
 
@@ -294,4 +294,4 @@ Cada app responde dentro del cluster de su VM en `<app>.<namespace>.svc.cluster.
 
 Agrega `.svc.cluster.local:3000` a cada valor.
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

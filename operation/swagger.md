@@ -37,7 +37,7 @@ Cada API sirve su documentación en la ruta `/docs`. Se accede desde la tailnet:
 | `infra-hub-api` | `https://dev-infra-hub-api.tu-tailnet.ts.net/docs` |
 | `ticket-hub-api` | `https://dev-ticket-hub-api.tu-tailnet.ts.net/docs` |
 
-Para otro ambiente, cambia el prefijo `dev-` por `local-` o `prod-`. Reemplaza `tu-tailnet` por el nombre de tu tailnet ([expose-apps-to-tailscale-network-for-three-environments.md](../expose-apps-to-tailscale-network-for-three-environments.md)).
+Para otro ambiente, cambia el prefijo `dev-` por `local-` o `prod-`. Reemplaza `tu-tailnet` por el nombre de tu tailnet ([expose-apps-to-tailscale-network-for-three-environments.md](../06-deploy-and-operation/expose-apps-to-tailscale-network-for-three-environments.md)).
 
 ### Probar un endpoint protegido
 

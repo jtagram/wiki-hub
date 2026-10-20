@@ -5,11 +5,11 @@ Crea las 3 bases de los backends en el PostgreSQL de cada VM: `iam_api`, `infra_
 Necesitas:
 
 - PostgreSQL desplegado y en `Running` en las 3 VMs — [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md).
-- El `POSTGRES_USER` de cada ambiente, del bloque generado por [main.sh](generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md): `jtagram_local`, `jtagram_dev` y `jtagram_prod`.
+- El `POSTGRES_USER` de cada ambiente, del bloque generado por [main.sh](../03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md): `jtagram_local`, `jtagram_dev` y `jtagram_prod`.
 
 ## Archivos usados
 
-Están en la carpeta [create-databases/](create-databases/):
+Están en la carpeta [create-databases/](create-databases):
 
 | Archivo | Qué hace |
 |---|---|
@@ -104,4 +104,4 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
 exit
 ```
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

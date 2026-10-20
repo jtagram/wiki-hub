@@ -5,7 +5,7 @@ variable son los mismos en los tres; solo cambian los valores.
 
 ## Antes de empezar
 
-- Las 3 VMs con acceso por SSH con llave y contraseña — [configure-access-key-for-three-environments..md](../configure-access-key-for-three-environments..md).
+- Las 3 VMs con acceso por SSH con llave y contraseña — [configure-access-key-for-three-environments..md](../../01-server-and-vms/configure-access-key-for-three-environments..md).
 - Tu PC cliente conectada a la tailnet.
 - `sshpass`, `openssl` y `ssh-keygen` instalados en tu PC cliente.
 - `npm install` ejecutado en `iam-api` (el script usa su `bcrypt` para los hashes).
@@ -135,6 +135,6 @@ ADMIN_PASSWORD_HASH=
 
 <div align="right">
 
-[← Back](../set-up-the-ecosystem-jtagram.md)
+[← Back](../../set-up-the-ecosystem-jtagram.md)
 
 </div>

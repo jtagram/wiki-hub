@@ -329,4 +329,4 @@ Al disparar por primera vez el workflow de dev o prod en `deploy-hub-api`, usa c
 | Desarrollo | `dev-v0.1.0` | `dev-v0.1.1` |
 | Producción | `prod-v0.1.0` | `prod-v0.1.1` |
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

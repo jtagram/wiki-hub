@@ -4,12 +4,12 @@ Levanta un PostgreSQL en cada VM. Cada VM tiene su propio servidor en su namespa
 
 Necesitas:
 
-- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
-- Secret `postgres-credentials` en `databases` — [create-secrets-for-three-environments.md](create-secrets-for-three-environments.md).
+- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
+- Secret `postgres-credentials` en `databases` — [create-secrets-for-three-environments.md](../03-cluster-secrets-and-access/create-secrets-for-three-environments.md).
 
 ## Archivos usados
 
-Están en la carpeta [deploy-postgres/](deploy-postgres/):
+Están en la carpeta [deploy-postgres/](deploy-postgres):
 
 | Archivo | Qué hace |
 |---|---|
@@ -122,4 +122,4 @@ Dentro del cluster de cada VM, Postgres responde en:
 postgres.databases.svc.cluster.local:5432
 ```
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

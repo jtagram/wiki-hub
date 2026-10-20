@@ -132,4 +132,4 @@ echo "deploy-hub-api/production-approver"; gh api "repos/$NUEVA_ORG/deploy-hub-a
 echo "deploy-hub-api/development-approver"; gh api "repos/$NUEVA_ORG/deploy-hub-api/environments/development-approver/secrets" --jq '.total_count'
 ```
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

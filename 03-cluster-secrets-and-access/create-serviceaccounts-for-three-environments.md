@@ -4,7 +4,7 @@ Cada app corre con su propio `ServiceAccount`, que lleva el mismo nombre de la a
 
 Se crea una sola vez por app y por ambiente, antes del primer deploy. Cada VM solo necesita los de su ambiente.
 
-Necesitas los namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
+Necesitas los namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 
 Todos los comandos se ejecutan desde tu PC cliente, dentro de cada VM.
 
@@ -80,6 +80,6 @@ Si algún comando devuelve `Error from server (NotFound): namespaces "..." not f
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

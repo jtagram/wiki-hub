@@ -21,7 +21,7 @@ Se lanza a mano (`workflow_dispatch`) desde **`deploy-hub-api`** y siempre arran
 - `previous_stable_tag`: la última versión estable. Debe **existir ya**, en git (en el repo de la app) y en Docker Hub.
 - `new_tag`: la versión que se va a publicar y desplegar. Debe **no existir todavía**.
 
-El prefijo evita que los tags de dev y prod choquen, porque un tag de git y una imagen de Docker Hub son únicos por repositorio. Más detalle en [create-tag-for-dockerhub-and-github.md](../create-tag-for-dockerhub-and-github.md).
+El prefijo evita que los tags de dev y prod choquen, porque un tag de git y una imagen de Docker Hub son únicos por repositorio. Más detalle en [create-tag-for-dockerhub-and-github.md](../05-github-and-cicd/create-tag-for-dockerhub-and-github.md).
 
 Cada app y ambiente tiene su workflow en `deploy-hub-api` (`deploy-<app>-<ambiente>.yml`), que solo pasa sus parámetros al workflow reutilizable `deploy.yml`.
 
@@ -117,7 +117,7 @@ Cada ejecución de dev y prod deja en el *Summary* de `deploy-hub-api` los tags 
 
 Apps: `iam`, `iam-api`, `ticket-hub`, `ticket-hub-api`, `infra-hub-api`.
 
-Los secrets se cargan por environment de GitHub (`local`, `dev`, `prod`): [load-secrets-for-github-action-for-three-environments.md](../load-secrets-for-github-action-for-three-environments.md).
+Los secrets se cargan por environment de GitHub (`local`, `dev`, `prod`): [load-secrets-for-github-action-for-three-environments.md](../05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md).
 
 ## Por qué todo en deploy-hub-api
 

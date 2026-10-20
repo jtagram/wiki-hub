@@ -2,11 +2,11 @@
 
 Instala MicroK8s en las VMs `local`, `dev` y `prod`.
 
-Necesitas el acceso por llave a las 3 VMs — [configure-access-key-for-three-environments..md](configure-access-key-for-three-environments..md).
+Necesitas el acceso por llave a las 3 VMs — [configure-access-key-for-three-environments..md](../01-server-and-vms/configure-access-key-for-three-environments..md).
 
 Todos los comandos se ejecutan desde tu PC cliente, dentro de cada VM.
 
-Se habilita el addon `rbac`. Sin él, MicroK8s autoriza todo (`AlwaysAllow`) y los permisos que se crean en [create-roles-for-three-environments.md](create-roles-for-three-environments.md) y [create-rolebindings-for-three-environments.md](create-rolebindings-for-three-environments.md) no se aplican: cualquier usuario tendría acceso total. Tras habilitarlo se reinicia `kubelite` para que el API server cargue la configuración nueva, y en `microk8s status` debe aparecer `rbac` en `enabled`.
+Se habilita el addon `rbac`. Sin él, MicroK8s autoriza todo (`AlwaysAllow`) y los permisos que se crean en [create-roles-for-three-environments.md](../03-cluster-secrets-and-access/create-roles-for-three-environments.md) y [create-rolebindings-for-three-environments.md](../03-cluster-secrets-and-access/create-rolebindings-for-three-environments.md) no se aplican: cualquier usuario tendría acceso total. Tras habilitarlo se reinicia `kubelite` para que el API server cargue la configuración nueva, y en `microk8s status` debe aparecer `rbac` en `enabled`.
 
 ## local
 
@@ -76,6 +76,6 @@ Debe aparecer el nodo `prod` en estado `Ready`.
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

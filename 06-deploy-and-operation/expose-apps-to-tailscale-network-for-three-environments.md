@@ -8,11 +8,11 @@ Cada VM tiene su propio cluster, así que se instala un Tailscale Kubernetes Ope
 
 Necesitas:
 
-- Los kubeconfig de **administración** de las 3 VMs (`pcbox-kubeconfig-local.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-prod.yaml`), generados en [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md). Un usuario restringido no alcanza: el operator crea CRDs y ClusterRoles.
+- Los kubeconfig de **administración** de las 3 VMs (`pcbox-kubeconfig-local.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-prod.yaml`), generados en [generate-secret-values-for-github-action-for-three-environments.md](../05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md). Un usuario restringido no alcanza: el operator crea CRDs y ClusterRoles.
 - `kubectl` y `helm` instalados en tu PC cliente.
 - Tu PC cliente conectada a la misma tailnet que las VMs.
 - Las 5 apps desplegadas en los 3 ambientes — [first-deploy-for-three-environments.md](first-deploy-for-three-environments.md).
-- El namespace `tailscale` creado en cada VM — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
+- El namespace `tailscale` creado en cada VM — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 
 Los comandos se ejecutan desde la carpeta donde guardaste los kubeconfig.
 
@@ -534,4 +534,4 @@ Debe responder una línea `HTTP/2` con un código de la app (por ejemplo `200` o
 
 Las 3 APIs (`iam-api`, `infra-hub-api`, `ticket-hub-api`) quedan alcanzables desde toda la tailnet. Con las ACL por defecto, todos los nodos se ven entre sí. Tenlo presente al definir las ACL de tu tailnet.
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

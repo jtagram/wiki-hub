@@ -15,7 +15,7 @@ Necesitas:
 
 - El usuario y su kubeconfig — [create-users-for-three-environments.md](create-users-for-three-environments.md).
 - Los roles `cluster-viewer` y `secrets-editor` — [create-roles-for-three-environments.md](create-roles-for-three-environments.md).
-- Los namespaces de cada ambiente — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
+- Los namespaces de cada ambiente — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 - Tu PC cliente con `kubectl` y conectada a la tailnet.
 
 Namespaces de cada ambiente donde el usuario edita Secrets: `iam`, `iam-api`, `infra-hub-api`, `ticket-hub`, `ticket-hub-api`, `databases` y `tailscale`, con el prefijo del ambiente.
@@ -222,4 +222,4 @@ Si un comando que debía fallar se ejecuta, revisa los `ClusterRole` de [create-
 | `<ambiente>-viewer-secrets-editor-view` | `ClusterRoleBinding` | Le da `cluster-viewer` al usuario: ve todo el cluster de la VM |
 | `viewer-secrets-editor-binding` | `RoleBinding` en cada namespace del ambiente | Le da `secrets-editor` al usuario solo en ese namespace |
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

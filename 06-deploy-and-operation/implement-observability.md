@@ -8,9 +8,9 @@ Cada VM tiene su propio cluster, así que se instala todo en cada una, en el nam
 
 Necesitas:
 
-- Los kubeconfig de **administración** de las 3 VMs (`pcbox-kubeconfig-local.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-prod.yaml`), generados en [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md).
+- Los kubeconfig de **administración** de las 3 VMs (`pcbox-kubeconfig-local.yaml`, `pcbox-kubeconfig-dev.yaml` y `pcbox-kubeconfig-prod.yaml`), generados en [generate-secret-values-for-github-action-for-three-environments.md](../05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md).
 - `kubectl` y `helm` en tu PC cliente, conectada a la tailnet.
-- El addon `hostpath-storage` habilitado en las 3 VMs (se habilita en [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md)).
+- El addon `hostpath-storage` habilitado en las 3 VMs (se habilita en [deploy-postgres-for-three-environments.md](../04-database/deploy-postgres-for-three-environments.md)).
 - Para entrar a Grafana por URL: el operator de Tailscale instalado en las 3 VMs — [expose-apps-to-tailscale-network-for-three-environments.md](expose-apps-to-tailscale-network-for-three-environments.md).
 
 Todos los comandos se ejecutan desde tu PC cliente, en la carpeta donde guardaste los kubeconfig. No entres por SSH a las VMs: `helm` y `kubectl` hablan con el cluster de cada VM a través de `--kubeconfig`, por la tailnet.
@@ -461,4 +461,4 @@ El campo `level` de pino es numérico: `30` info, `40` warn, `50` error, `60` fa
 - **Sin autenticación en Loki:** solo es accesible dentro del cluster. No lo expongas a la tailnet.
 - **Logs de la app:** Loki solo ve lo que las apps escriben en stdout/stderr. `iam-api` e `infra-hub-api` ya lo hacen en JSON con `nestjs-pino`.
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

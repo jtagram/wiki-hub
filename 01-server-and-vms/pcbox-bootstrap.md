@@ -210,6 +210,6 @@ Para comprobar el acceso físico, conecta monitor y teclado a `pcbox` e inicia s
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

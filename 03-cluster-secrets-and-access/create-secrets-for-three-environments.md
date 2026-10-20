@@ -4,7 +4,7 @@ Carga en cada VM los secretos de su ambiente, en el MicroK8s de esa VM.
 
 Necesitas:
 
-- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](create-namespaces-for-three-environments.md).
+- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 - Los valores generados por [main.sh](generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md). Cada ambiente usa su propio bloque (`PROD`, `DEV`, `LOCAL`).
 
 Reemplaza cada `<VARIABLE>` por el valor de esa variable en el bloque del ambiente.
@@ -377,6 +377,6 @@ exit
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>

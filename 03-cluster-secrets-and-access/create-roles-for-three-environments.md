@@ -9,7 +9,7 @@ Un rol por sí solo no da permisos a nadie: se asigna al usuario en [create-role
 
 Necesitas:
 
-- El addon `rbac` habilitado en las 3 VMs — [install-microk8s-for-three-environments.md](install-microk8s-for-three-environments.md). Compruébalo con `microk8s status | grep rbac` dentro de cada VM: debe aparecer bajo `enabled`. Sin RBAC los permisos de este instructivo no se aplican.
+- El addon `rbac` habilitado en las 3 VMs — [install-microk8s-for-three-environments.md](../02-microk8s-base/install-microk8s-for-three-environments.md). Compruébalo con `microk8s status | grep rbac` dentro de cada VM: debe aparecer bajo `enabled`. Sin RBAC los permisos de este instructivo no se aplican.
 
 Los pasos de cada ambiente se ejecutan desde tu PC cliente, dentro de la VM.
 
@@ -137,4 +137,4 @@ exit
 | `cluster-viewer` | `ClusterRole` de solo lectura | Permite ver todo el cluster de la VM |
 | `secrets-editor` | `ClusterRole` que escribe Secrets | Se asigna con un `RoleBinding` en cada namespace del ambiente, así que solo vale ahí |
 
-<p align="right"><a href="set-up-the-ecosystem-jtagram.md">← Back</a></p>
+<p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

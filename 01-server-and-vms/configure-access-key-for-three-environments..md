@@ -125,6 +125,6 @@ ssh -o PubkeyAuthentication=no ubuntu@pcbox-prod 'echo OK'
 
 <div align="right">
 
-[← Back](set-up-the-ecosystem-jtagram.md)
+[← Back](../set-up-the-ecosystem-jtagram.md)
 
 </div>
