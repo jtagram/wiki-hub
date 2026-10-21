@@ -1,14 +1,5 @@
 # Cargar los secretos en los namespaces de los 3 ambientes
 
-Carga en cada VM los secretos de su ambiente, en el MicroK8s de esa VM.
-
-Necesitas:
-
-- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
-- Los valores generados por [main.sh](generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md). Cada ambiente usa su propio bloque (`PROD`, `DEV`, `LOCAL`).
-
-Reemplaza cada `<VARIABLE>` por el valor de esa variable en el bloque del ambiente.
-
 ## Secretos por ambiente
 
 | Secret | Namespace | Variables |
@@ -22,6 +13,8 @@ Reemplaza cada `<VARIABLE>` por el valor de esa variable en el bloque del ambien
 | `ticket-hub-api-service-credentials` | `ticket-hub-api` | `CLIENT_ID`, `CLIENT_SECRET` |
 
 `iam` y `ticket-hub` no tienen secretos.
+
+En cada VM defines primero las variables con los valores de una línea de su ambiente (el bloque `PROD`, `DEV` o `LOCAL` que imprimió `main.sh`) y después copias y ejecutas los comandos tal cual.
 
 `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` y `SERVER_SSH_PRIVATE_KEY` son bloques de varias líneas. En cada VM se guardan primero en archivos temporales, pegando el bloque completo (de `-----BEGIN` a `-----END`), y se cargan con `--from-file`. Al terminar se borran.
 
@@ -43,13 +36,24 @@ nano jwt_public.pem
 nano server_ssh_key
 ```
 
+Después define las variables con los valores del ambiente. Pega cada valor entre las comillas simples:
+
+```bash
+POSTGRES_USER=''
+POSTGRES_PASSWORD=''
+SERVER_SSH_HOST=''
+SERVER_SSH_USER=''
+CLIENT_ID=''
+CLIENT_SECRET=''
+```
+
 ### Databases
 
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n databases \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 ```
 
 ### iam-api
@@ -57,8 +61,8 @@ microk8s kubectl create secret generic postgres-credentials \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n iam-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic jwt-keys \
   -n iam-api \
@@ -71,13 +75,13 @@ microk8s kubectl create secret generic jwt-keys \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n infra-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic server-ssh-key \
   -n infra-hub-api \
-  --from-literal=SERVER_SSH_HOST='<SERVER_SSH_HOST>' \
-  --from-literal=SERVER_SSH_USER='<SERVER_SSH_USER>' \
+  --from-literal=SERVER_SSH_HOST="$SERVER_SSH_HOST" \
+  --from-literal=SERVER_SSH_USER="$SERVER_SSH_USER" \
   --from-file=SERVER_SSH_PRIVATE_KEY=server_ssh_key
 ```
 
@@ -86,13 +90,13 @@ microk8s kubectl create secret generic server-ssh-key \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n ticket-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic ticket-hub-api-service-credentials \
   -n ticket-hub-api \
-  --from-literal=CLIENT_ID='<CLIENT_ID>' \
-  --from-literal=CLIENT_SECRET='<CLIENT_SECRET>'
+  --from-literal=CLIENT_ID="$CLIENT_ID" \
+  --from-literal=CLIENT_SECRET="$CLIENT_SECRET"
 ```
 
 ### Verificar
@@ -136,10 +140,12 @@ postgres-credentials                 Opaque   2      10s
 ticket-hub-api-service-credentials   Opaque   2      10s
 ```
 
-### Borrar los archivos temporales
+### Borrar los archivos temporales y las variables
 
 ```bash
 rm jwt_private.pem jwt_public.pem server_ssh_key
+unset POSTGRES_USER POSTGRES_PASSWORD SERVER_SSH_HOST SERVER_SSH_USER CLIENT_ID CLIENT_SECRET
+history -c
 exit
 ```
 
@@ -159,13 +165,24 @@ nano jwt_public.pem
 nano server_ssh_key
 ```
 
+Después define las variables con los valores del ambiente. Pega cada valor entre las comillas simples:
+
+```bash
+POSTGRES_USER=''
+POSTGRES_PASSWORD=''
+SERVER_SSH_HOST=''
+SERVER_SSH_USER=''
+CLIENT_ID=''
+CLIENT_SECRET=''
+```
+
 ### Databases
 
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n databases \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 ```
 
 ### iam-api
@@ -173,8 +190,8 @@ microk8s kubectl create secret generic postgres-credentials \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n iam-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic jwt-keys \
   -n iam-api \
@@ -187,13 +204,13 @@ microk8s kubectl create secret generic jwt-keys \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n infra-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic server-ssh-key \
   -n infra-hub-api \
-  --from-literal=SERVER_SSH_HOST='<SERVER_SSH_HOST>' \
-  --from-literal=SERVER_SSH_USER='<SERVER_SSH_USER>' \
+  --from-literal=SERVER_SSH_HOST="$SERVER_SSH_HOST" \
+  --from-literal=SERVER_SSH_USER="$SERVER_SSH_USER" \
   --from-file=SERVER_SSH_PRIVATE_KEY=server_ssh_key
 ```
 
@@ -202,13 +219,13 @@ microk8s kubectl create secret generic server-ssh-key \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n ticket-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic ticket-hub-api-service-credentials \
   -n ticket-hub-api \
-  --from-literal=CLIENT_ID='<CLIENT_ID>' \
-  --from-literal=CLIENT_SECRET='<CLIENT_SECRET>'
+  --from-literal=CLIENT_ID="$CLIENT_ID" \
+  --from-literal=CLIENT_SECRET="$CLIENT_SECRET"
 ```
 
 ### Verificar
@@ -252,10 +269,12 @@ postgres-credentials                 Opaque   2      10s
 ticket-hub-api-service-credentials   Opaque   2      10s
 ```
 
-### Borrar los archivos temporales
+### Borrar los archivos temporales y las variables
 
 ```bash
 rm jwt_private.pem jwt_public.pem server_ssh_key
+unset POSTGRES_USER POSTGRES_PASSWORD SERVER_SSH_HOST SERVER_SSH_USER CLIENT_ID CLIENT_SECRET
+history -c
 exit
 ```
 
@@ -275,13 +294,24 @@ nano jwt_public.pem
 nano server_ssh_key
 ```
 
+Después define las variables con los valores del ambiente. Pega cada valor entre las comillas simples:
+
+```bash
+POSTGRES_USER=''
+POSTGRES_PASSWORD=''
+SERVER_SSH_HOST=''
+SERVER_SSH_USER=''
+CLIENT_ID=''
+CLIENT_SECRET=''
+```
+
 ### Databases
 
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n databases \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 ```
 
 ### iam-api
@@ -289,8 +319,8 @@ microk8s kubectl create secret generic postgres-credentials \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n iam-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic jwt-keys \
   -n iam-api \
@@ -303,13 +333,13 @@ microk8s kubectl create secret generic jwt-keys \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n infra-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic server-ssh-key \
   -n infra-hub-api \
-  --from-literal=SERVER_SSH_HOST='<SERVER_SSH_HOST>' \
-  --from-literal=SERVER_SSH_USER='<SERVER_SSH_USER>' \
+  --from-literal=SERVER_SSH_HOST="$SERVER_SSH_HOST" \
+  --from-literal=SERVER_SSH_USER="$SERVER_SSH_USER" \
   --from-file=SERVER_SSH_PRIVATE_KEY=server_ssh_key
 ```
 
@@ -318,13 +348,13 @@ microk8s kubectl create secret generic server-ssh-key \
 ```bash
 microk8s kubectl create secret generic postgres-credentials \
   -n ticket-hub-api \
-  --from-literal=POSTGRES_USER='<POSTGRES_USER>' \
-  --from-literal=POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'
+  --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+  --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
 
 microk8s kubectl create secret generic ticket-hub-api-service-credentials \
   -n ticket-hub-api \
-  --from-literal=CLIENT_ID='<CLIENT_ID>' \
-  --from-literal=CLIENT_SECRET='<CLIENT_SECRET>'
+  --from-literal=CLIENT_ID="$CLIENT_ID" \
+  --from-literal=CLIENT_SECRET="$CLIENT_SECRET"
 ```
 
 ### Verificar
@@ -368,10 +398,12 @@ postgres-credentials                 Opaque   2      10s
 ticket-hub-api-service-credentials   Opaque   2      10s
 ```
 
-### Borrar los archivos temporales
+### Borrar los archivos temporales y las variables
 
 ```bash
 rm jwt_private.pem jwt_public.pem server_ssh_key
+unset POSTGRES_USER POSTGRES_PASSWORD SERVER_SSH_HOST SERVER_SSH_USER CLIENT_ID CLIENT_SECRET
+history -c
 exit
 ```
 

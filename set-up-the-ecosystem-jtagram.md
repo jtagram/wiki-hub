@@ -70,7 +70,7 @@ Crear los namespaces de cada ambiente en su VM.
 
 ---
 
-## Grupo 3: Secretos y accesos en el cluster (pasos 7 al 12)
+## Grupo 3: Secretos y accesos en el cluster (pasos 7 al 14)
 
 Cargar los Secrets y crear los usuarios, roles y ServiceAccounts.
 
@@ -90,15 +90,31 @@ Cargar esos valores como Secrets de Kubernetes en el namespace de cada app.
 
 ---
 
-### 9. Crear el usuario de acceso
+### 9. Configurar el certificado del API server
 
-Crear en cada ambiente el usuario `viewer-secrets-editor` con su token y su kubeconfig para la PC cliente.
+Agregar la IP de Tailscale de cada VM al certificado del API server y regenerarlo, para poder conectarse desde la PC cliente.
+
+<p align="right"><a href="03-cluster-secrets-and-access/configure-api-server-certificate-for-three-environments.md">Ir →</a></p>
+
+---
+
+### 10. Crear el usuario y su token
+
+Crear en cada ambiente el usuario `viewer-secrets-editor` (un ServiceAccount) y el Secret con su token.
 
 <p align="right"><a href="03-cluster-secrets-and-access/create-users-for-three-environments.md">Ir →</a></p>
 
 ---
 
-### 10. Crear los roles
+### 11. Crear el kubeconfig del usuario
+
+Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente.
+
+<p align="right"><a href="03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md">Ir →</a></p>
+
+---
+
+### 12. Crear los roles
 
 Crear los roles de solo lectura y de edición de Secrets.
 
@@ -106,7 +122,7 @@ Crear los roles de solo lectura y de edición de Secrets.
 
 ---
 
-### 11. Asignar los roles al usuario
+### 13. Asignar los roles al usuario
 
 Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en su ambiente.
 
@@ -114,7 +130,7 @@ Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en s
 
 ---
 
-### 12. Crear los ServiceAccounts
+### 14. Crear los ServiceAccounts
 
 Crear el ServiceAccount de cada app en su ambiente.
 
@@ -122,11 +138,11 @@ Crear el ServiceAccount de cada app en su ambiente.
 
 ---
 
-## Grupo 4: Base de datos (pasos 13 al 16)
+## Grupo 4: Base de datos (pasos 15 al 18)
 
 Desplegar PostgreSQL, crear las bases y las tablas, y cargar los datos iniciales.
 
-### 13. Desplegar PostgreSQL
+### 15. Desplegar PostgreSQL
 
 Desplegar PostgreSQL en cada ambiente.
 
@@ -134,7 +150,7 @@ Desplegar PostgreSQL en cada ambiente.
 
 ---
 
-### 14. Crear las bases de datos
+### 16. Crear las bases de datos
 
 Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente.
 
@@ -142,7 +158,7 @@ Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente.
 
 ---
 
-### 15. Crear las tablas
+### 17. Crear las tablas
 
 Crear las tablas de cada base en cada ambiente.
 
@@ -150,7 +166,7 @@ Crear las tablas de cada base en cada ambiente.
 
 ---
 
-### 16. Cargar los datos iniciales
+### 18. Cargar los datos iniciales
 
 Insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente.
 
@@ -158,11 +174,11 @@ Insertar los datos iniciales (primer usuario administrador y cuenta de servicio)
 
 ---
 
-## Grupo 5: GitHub y CI/CD (pasos 17 al 21)
+## Grupo 5: GitHub y CI/CD (pasos 19 al 23)
 
 Clonar los repositorios, configurar los environments y secretos de GitHub, y crear el primer tag.
 
-### 17. Clonar los repositorios
+### 19. Clonar los repositorios
 
 Clonar los repositorios de la organización `jtagram` a tu organización de GitHub.
 
@@ -170,7 +186,7 @@ Clonar los repositorios de la organización `jtagram` a tu organización de GitH
 
 ---
 
-### 18. Crear los environments de GitHub
+### 20. Crear los environments de GitHub
 
 Crear los environments de GitHub: en `deploy-hub-api`, `prod`, `dev` y `local` con secretos y `production-approver` y `development-approver` solo con la aprobación manual; en cada app, solo `local`.
 
@@ -178,7 +194,7 @@ Crear los environments de GitHub: en `deploy-hub-api`, `prod`, `dev` y `local` c
 
 ---
 
-### 19. Obtener los valores de los secretos de GitHub Actions
+### 21. Obtener los valores de los secretos de GitHub Actions
 
 Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos.
 
@@ -186,7 +202,7 @@ Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdal
 
 ---
 
-### 20. Cargar los secretos en GitHub
+### 22. Cargar los secretos en GitHub
 
 Cargar esos valores por CLI como Environment secrets: casi todos en `deploy-hub-api`, y en cada app solo el token con el que dispara el deploy de local.
 
@@ -194,7 +210,7 @@ Cargar esos valores por CLI como Environment secrets: casi todos en `deploy-hub-
 
 ---
 
-### 21. Crear el primer tag
+### 23. Crear el primer tag
 
 Crear el primer tag en GitHub y Docker Hub.
 
@@ -202,11 +218,11 @@ Crear el primer tag en GitHub y Docker Hub.
 
 ---
 
-## Grupo 6: Despliegue y operación (pasos 22 al 24)
+## Grupo 6: Despliegue y operación (pasos 24 al 26)
 
 Hacer el primer deploy, exponer las apps y ver los logs.
 
-### 22. Hacer el primer deploy
+### 24. Hacer el primer deploy
 
 Hacer el primer deploy de cada app en cada ambiente.
 
@@ -214,7 +230,7 @@ Hacer el primer deploy de cada app en cada ambiente.
 
 ---
 
-### 23. Exponer las apps a Tailscale
+### 25. Exponer las apps a Tailscale
 
 Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS.
 
@@ -222,7 +238,7 @@ Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTP
 
 ---
 
-### 24. Implementar la observabilidad
+### 26. Implementar la observabilidad
 
 Instalar Loki, Alloy y Grafana en cada ambiente para ver los logs de las apps, y exponer Grafana a la tailnet.
 

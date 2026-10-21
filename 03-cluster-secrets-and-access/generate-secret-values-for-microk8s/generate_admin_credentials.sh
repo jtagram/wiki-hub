@@ -13,7 +13,7 @@
 # para entregárselo al admin) y ADMIN_PASSWORD_HASH (el que va en la base).
 set -euo pipefail
 
-ADMIN_IAM_API_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../iam-api"
+ADMIN_IAM_API_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../iam-api"
 
 generate_admin_credentials() {
   ADMIN_PASSWORD="$(openssl rand -hex 16)"

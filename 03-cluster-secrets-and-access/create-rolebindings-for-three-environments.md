@@ -13,7 +13,8 @@ Al terminar, el usuario puede:
 
 Necesitas:
 
-- El usuario y su kubeconfig — [create-users-for-three-environments.md](create-users-for-three-environments.md).
+- El usuario y su token — [create-users-for-three-environments.md](create-users-for-three-environments.md).
+- El kubeconfig del usuario — [create-kubeconfig-for-three-environments.md](create-kubeconfig-for-three-environments.md).
 - Los roles `cluster-viewer` y `secrets-editor` — [create-roles-for-three-environments.md](create-roles-for-three-environments.md).
 - Los namespaces de cada ambiente — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
 - Tu PC cliente con `kubectl` y conectada a la tailnet.
