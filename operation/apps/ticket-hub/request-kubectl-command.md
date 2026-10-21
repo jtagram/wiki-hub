@@ -65,4 +65,4 @@ sequenceDiagram
     TH-->>A: Muestra el estado y la respuesta
 ```
 
-<p align="right"><a href="../../operation.md">← Back</a></p>
+<p align="right"><a href="ticket-hub.md">← Back</a></p>

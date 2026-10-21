@@ -35,4 +35,4 @@ sequenceDiagram
     TH-->>U: Muestra el ticket
 ```
 
-<p align="right"><a href="../../operation.md">← Back</a></p>
+<p align="right"><a href="ticket-hub.md">← Back</a></p>
