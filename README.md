@@ -6,12 +6,6 @@
 
 Su objetivo es ayudar a las empresas a trabajar de manera ordenada desde el comienzo, mediante procesos definidos, algunos automatizados y otros manuales.
 
-## Alcance
-
-Jtagram está pensado para **desarrollar aplicaciones personales en un home lab**: un servidor propio en casa, con sus máquinas virtuales, donde una sola persona o un equipo muy chico monta y opera todo el ecosistema. Ese es su alcance actual.
-
-La misma estructura se puede **llevar a mayor escala**, por ejemplo en una empresa que recién comienza. Para eso habría que adaptar la infraestructura y robustecer la lógica, ya que acá está dimensionado para un entorno chico.
-
 ## 1. ¿Qué problema resuelve Jtagram?
 
 Muchas empresas comienzan a desarrollar una aplicación de manera informal. Al principio, el equipo es pequeño y todos conocen lo que están haciendo. Sin embargo, a medida que la empresa crece, el desarrollo se vuelve más complejo y mantener el orden resulta cada vez más difícil.
@@ -71,6 +65,15 @@ A medida que el software crece, también se acumulan herramientas, procedimiento
 Corregir esa situación requiere tiempo y esfuerzo, y en algunos casos puede afectar la continuidad del desarrollo.
 
 Jtagram propone abordar este problema de manera preventiva: establecer una organización desde las primeras etapas, para que el entorno pueda acompañar el crecimiento de la empresa.
+
+## Alcance
+
+Jtagram está pensado para **desarrollar aplicaciones personales en un home lab**: un servidor propio en casa, con sus máquinas virtuales, donde una sola persona o un equipo muy chico monta y opera todo el ecosistema. Ese es su alcance actual.
+
+La misma estructura se puede **llevar a mayor escala**, por ejemplo en una empresa que recién comienza. Para eso habría que adaptar la infraestructura y robustecer la lógica, ya que acá está dimensionado para un entorno chico.
+
+> [!WARNING]
+> Jtagram está en **etapa de desarrollo**. La estructura, los procesos y la documentación pueden cambiar, y todavía no hay garantía de que esté listo para producción.
 
 ## En resumen
 
