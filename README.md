@@ -78,5 +78,5 @@ La idea central es sencilla: **no se trata solamente de desarrollar aplicaciones
 
 | Tema | Documento |
 |---|---|
-| Cómo montar el ecosistema | [Ir →](set-up-the-ecosystem-jtagram.md) |
+| Cómo montar el ecosistema | [Ir →](set-up/set-up-the-ecosystem-jtagram.md) |
 | Cómo funciona el ecosistema | [Ir →](operation/operation.md) |
