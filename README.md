@@ -6,6 +6,12 @@
 
 Su objetivo es ayudar a las empresas a trabajar de manera ordenada desde el comienzo, mediante procesos definidos, algunos automatizados y otros manuales.
 
+## Alcance
+
+Jtagram está pensado para **desarrollar aplicaciones personales en un home lab**: un servidor propio en casa, con sus máquinas virtuales, donde una sola persona o un equipo muy chico monta y opera todo el ecosistema. Ese es su alcance actual.
+
+La misma estructura se puede **llevar a mayor escala**, por ejemplo en una empresa que recién comienza. Para eso habría que adaptar la infraestructura y robustecer la lógica, ya que acá está dimensionado para un entorno chico.
+
 ## 1. ¿Qué problema resuelve Jtagram?
 
 Muchas empresas comienzan a desarrollar una aplicación de manera informal. Al principio, el equipo es pequeño y todos conocen lo que están haciendo. Sin embargo, a medida que la empresa crece, el desarrollo se vuelve más complejo y mantener el orden resulta cada vez más difícil.
