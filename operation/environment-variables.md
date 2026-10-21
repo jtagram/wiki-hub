@@ -30,22 +30,4 @@ Las APIs (`iam-api`, `infra-hub-api`, `ticket-hub-api`) reciben su configuració
 | 4 | `EnvModule` valida que existan y tengan el tipo correcto | `<app>/src/common/config/` |
 | 5-6 | El resto del código lee los valores con `ConfigService` | Servicios, conectores y módulos de cada API |
 
-### Si falta una variable
-
-`EnvModule` lanza `Missing required environment variable(s): <nombres>` y el proceso termina. En el deploy, el pod no queda listo y el paso `rollout status` del workflow falla ([workflow.md](workflow.md)). Para ver cuál falta: `kubectl logs` del pod.
-
-## Dónde está implementado
-
-En cada API, en `src/common/config/`:
-
-| Archivo | Qué hace |
-|---|---|
-| `env.validation.ts` | Lista **todas** las variables que la API necesita y su regla (`@IsString`, `@IsIn`, etc.) |
-| `env.module.ts` | Módulo global que carga y valida las variables al arrancar |
-| `__tests__/env.validation.spec.ts` | Tests de la validación |
-
-Es el **único lugar** donde se declaran las variables de una API, y la lista completa vive en `env.validation.ts`. Además, cada API tiene un `.env.example` para desarrollo local.
-
-El código de negocio nunca lee `process.env`: pide el valor a `ConfigService`.
-
 <p align="right"><a href="operation.md">← Back</a></p>

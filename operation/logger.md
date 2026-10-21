@@ -44,19 +44,4 @@ Reemplaza `tu-tailnet` por el nombre de tu tailnet. Usuario `admin`; la contrase
 
 Para ver los logs: menú **Explore** → fuente de datos **Loki** → por ejemplo `{namespace="iam-api"} | json | level >= 50` (solo errores).
 
-## Dónde está implementado
-
-En cada API, en una sola carpeta:
-
-| API | Ruta |
-|---|---|
-| `iam-api` | `iam-api/src/instrument/logger/` |
-| `infra-hub-api` | `infra-hub-api/src/instrument/logger/` |
-| `ticket-hub-api` | `ticket-hub-api/src/instrument/logger/` |
-
-- `logger.config.ts`: opciones de pino (nivel, id de request, campos redactados).
-- `logger.module.ts`: módulo Nest global que lee `LOG_LEVEL` y aplica la config.
-
-Es el **único lugar** donde se configura el logger de cada API. El resto del código solo inyecta `Logger` de `nestjs-pino` y lo usa; nunca crea ni configura una instancia propia.
-
 <p align="right"><a href="operation.md">← Back</a></p>

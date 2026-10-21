@@ -52,49 +52,4 @@ Para obtener un token, el usuario necesita: acceso a la aplicación de origen y 
 | 4 | Se comprueba que tenga alguno de los roles de `@Roles(...)`; si no, `403` | `@Roles(...)` en el controlador |
 | 5 | Se ejecuta el endpoint | — |
 
-| Respuesta | Cuándo |
-|---|---|
-| `401` | Falta el token, está mal formado, es inválido o venció |
-| `403` | El token es de otra aplicación, o no tiene el rol que pide el endpoint |
-
-Los guards revisan solo la aplicación y los roles del token. **No distinguen** si quien llama es un usuario interno o de aplicación.
-
-## Usuarios internos
-
-Personas. Sus roles definen qué pueden hacer en cada aplicación.
-
-- **Administración de IAM:** el rol `ADMIN` en la aplicación `iam` permite crear aplicaciones, roles y usuarios, y asignarles aplicaciones, roles y conexiones.
-- **Tickets:** en `ticket-hub-api`, cada área tiene un rol para crear y consultar y otro para aprobar o rechazar.
-
-## Usuarios de aplicación
-
-Aplicaciones que llaman a otras. Se autorizan igual, con roles asignados a su usuario.
-
-- **Servicio de ticket-hub-api:** necesita `ADMIN` en `infra-hub-api` para ejecutar operaciones, y `ADMIN` en `iam` para consultar la lista de responsables.
-- **Gestión:** los administra un `ADMIN` de `iam`, con endpoints equivalentes a los de usuarios internos bajo `/apps-users`.
-
-## Roles por API
-
-| API | Roles | Qué permiten |
-|---|---|---|
-| `iam-api` | `ADMIN` | Todos los endpoints de gestión (`/applications`, `/roles`, `/internal-users`, `/apps-users`) |
-| `infra-hub-api` | `ADMIN` | Todas las operaciones de bases de datos, servidor y Kubernetes. Solo las llama el usuario de servicio de `ticket-hub-api` |
-| `ticket-hub-api` | `ADMIN` | Todo |
-| | `DATABASE`, `SERVER`, `KUBERNATES` | Crear y consultar tickets de su área |
-| | `DATABASE_APPROVER`, `SERVER_APPROVER`, `KUBERNATES_APPROVER` | Crear y consultar tickets de su área y además aprobarlos o rechazarlos |
-| | `COMMON_USER` | Solo iniciar sesión; ningún endpoint lo pide |
-
-Los nombres de los roles se escriben tal cual en el código (incluido `KUBERNATES`).
-
-## Dónde está implementado
-
-| Qué | Dónde |
-|---|---|
-| Aplicaciones, roles y asignaciones | `iam-api/src/common/database/` y `iam-api/src/modules/` |
-| Guards | `<api>/src/common/guards/` (`jwt-auth.guard.ts`, `roles.guard.ts`; en `iam-api` también `application-access.guard.ts`) |
-| Marcar un endpoint con sus roles | Decoradores `@Roles(...)` y `@Public()` en cada controlador |
-| Lista de roles de cada API | `<api>/src/common/roles/role.enum.ts` (`iam-api`: `common/database/role/`) |
-
-Los guards se registran como globales (`APP_GUARD`), así que aplican a toda la API sin repetirlos en cada controlador. En `iam-api`, una ruta que no es pública y no declara `@Roles` se **deniega**; en `ticket-hub-api` e `infra-hub-api`, la deja pasar si el token es válido.
-
 <p align="right"><a href="operation.md">← Back</a></p>

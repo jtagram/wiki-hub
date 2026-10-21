@@ -86,38 +86,4 @@ Sin validaciones, tags ni aprobación. Un `push` a la rama `local` de la app sol
 | `build-and-push` | En `deploy-hub-api`: clona la rama `local` de la app y sube `<usuario>/<app>:local` a Docker Hub |
 | `deploy` | En `deploy-hub-api`: aplica los manifiestos en el microk8s local y reinicia el deployment |
 
-### Rollback
-
-No hay un workflow que despliegue solo un tag ya publicado: cada ejecución de dev y prod compila y publica un `new_tag` nuevo. Por eso el `cleanup-tags` conserva `previous_stable_tag` en Docker Hub: queda la imagen anterior disponible. Para volver atrás, en la VM del ambiente:
-
-```bash
-microk8s kubectl rollout undo deployment/<app> -n <app>
-```
-
-### Dónde ver las ejecuciones
-
-| Qué | URL |
-|---|---|
-| Release y deploy de dev y prod, y deploy de local | `https://github.com/jtagram/deploy-hub-api/actions` |
-| Disparo de local de una app (solo el `gh workflow run`) | `https://github.com/jtagram/<app>/actions` |
-
-Cada ejecución de dev y prod deja en el *Summary* de `deploy-hub-api` los tags conservados y eliminados de Docker Hub.
-
-## Dónde está implementado
-
-5 apps × 3 ambientes = 15 workflows en `deploy-hub-api`, más un disparo por app para local.
-
-| Qué | Ruta |
-|---|---|
-| Workflow reutilizable de dev y prod | `deploy-hub-api/.github/workflows/deploy.yml` |
-| Workflow reutilizable de local | `deploy-hub-api/.github/workflows/deploy-local.yml` |
-| Workflow de cada app y ambiente | `deploy-hub-api/.github/workflows/deploy-<app>-<ambiente>.yml` |
-| Disparo de local en la app | `<app>/.github/workflows/release-<app>-local.yml` |
-| Manifiestos de k8s | `deploy-hub-api/.github/workflows/<app>/manifests/` (`namespace`, `deployment`, `service`) |
-| Scripts | `deploy-hub-api/scripts/` |
-
-Apps: `iam`, `iam-api`, `ticket-hub`, `ticket-hub-api`, `infra-hub-api`.
-
-Los secrets se cargan por environment de GitHub (`local`, `dev`, `prod`): [load-secrets-for-github-action-for-three-environments.md](../05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md).
-
 <p align="right"><a href="operation.md">← Back</a></p>

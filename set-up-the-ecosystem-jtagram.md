@@ -6,244 +6,73 @@ Sigue los pasos en este orden. Cada uno da por hecho que los anteriores ya se co
 
 ## Pasos
 
-## Grupo 1: Servidor y VMs (pasos 0 al 4)
+## Grupo 1: Servidor y VMs
 
 Preparar el servidor `pcbox` y las 3 máquinas virtuales.
 
-### 0. Preparar el servidor pcbox
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 0. Preparar el servidor pcbox | Instalar Ubuntu Server y OpenSSH en `pcbox`, conectarlo a la tailnet y dejar el acceso por SSH solo con llave. | [Ir →](01-server-and-vms/pcbox-bootstrap.md) |
+| 1. Instalar Multipass | Instalar Multipass en el servidor `pcbox`. | [Ir →](01-server-and-vms/install-multipass.md) |
+| 2. Crear las VMs con Ubuntu Server | Crear las 3 VMs con Ubuntu Server. | [Ir →](01-server-and-vms/create-ubuntu-server-on-multipass-vm.md) |
+| 3. Conectar las VMs a la tailnet | Conectar las VMs a la tailnet. | [Ir →](01-server-and-vms/configure-tailscale-for-three-environments.md) |
+| 4. Configurar el acceso a las VMs | Configurar el acceso con llave y contraseña, y `sudo` sin contraseña. | [Ir →](01-server-and-vms/configure-access-key-for-three-environments..md) |
 
-Preparar el servidor `pcbox`, que aloja las 3 VMs: instalar Ubuntu Server y OpenSSH, conectarlo a la tailnet y configurar el acceso por SSH solo con llave, dejando la contraseña únicamente para el acceso físico con monitor y teclado.
-
-<p align="right"><a href="01-server-and-vms/pcbox-bootstrap.md">Ir →</a></p>
-
----
-
-### 1. Instalar Multipass
-
-Instalar Multipass en el servidor `pcbox`.
-
-<p align="right"><a href="01-server-and-vms/install-multipass.md">Ir →</a></p>
-
----
-
-### 2. Crear las VMs con Ubuntu Server
-
-Crear las 3 VMs con Ubuntu Server.
-
-<p align="right"><a href="01-server-and-vms/create-ubuntu-server-on-multipass-vm.md">Ir →</a></p>
-
----
-
-### 3. Conectar las VMs a la tailnet
-
-Conectar las VMs a la tailnet.
-
-<p align="right"><a href="01-server-and-vms/configure-tailscale-for-three-environments.md">Ir →</a></p>
-
----
-
-### 4. Configurar el acceso a las VMs
-
-Configurar el acceso con llave y contraseña, y `sudo` sin contraseña.
-
-<p align="right"><a href="01-server-and-vms/configure-access-key-for-three-environments..md">Ir →</a></p>
-
----
-
-## Grupo 2: Base de MicroK8s (pasos 5 al 6)
+## Grupo 2: Base de MicroK8s
 
 Instalar MicroK8s y crear los namespaces de cada ambiente.
 
-### 5. Instalar MicroK8s
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 5. Instalar MicroK8s | Instalar MicroK8s en cada VM. | [Ir →](02-microk8s-base/install-microk8s-for-three-environments.md) |
+| 6. Crear los namespaces | Crear los namespaces de cada ambiente en su VM. | [Ir →](02-microk8s-base/create-namespaces-for-three-environments.md) |
 
-Instalar MicroK8s en cada VM.
-
-<p align="right"><a href="02-microk8s-base/install-microk8s-for-three-environments.md">Ir →</a></p>
-
----
-
-### 6. Crear los namespaces
-
-Crear los namespaces de cada ambiente en su VM.
-
-<p align="right"><a href="02-microk8s-base/create-namespaces-for-three-environments.md">Ir →</a></p>
-
----
-
-## Grupo 3: Secretos y accesos en el cluster (pasos 7 al 14)
+## Grupo 3: Secretos y accesos en el cluster
 
 Cargar los Secrets y crear los usuarios, roles y ServiceAccounts.
 
-### 7. Generar los valores de los secretos
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 7. Generar los valores de los secretos | Generar los valores de los secretos de cada ambiente. Guarda la salida. | [Ir →](03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md) |
+| 8. Crear los Secrets de Kubernetes | Cargar esos valores como Secrets de Kubernetes en el namespace de cada app. | [Ir →](03-cluster-secrets-and-access/create-secrets-for-three-environments.md) |
+| 9. Configurar el certificado del API server | Agregar la IP de Tailscale de cada VM al certificado del API server y regenerarlo. | [Ir →](03-cluster-secrets-and-access/configure-api-server-certificate-for-three-environments.md) |
+| 10. Crear el usuario y su token | Crear el usuario `viewer-secrets-editor` y el Secret con su token en cada ambiente. | [Ir →](03-cluster-secrets-and-access/create-users-for-three-environments.md) |
+| 11. Crear el kubeconfig del usuario | Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente. | [Ir →](03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md) |
+| 12. Crear los roles | Crear los roles de solo lectura y de edición de Secrets. | [Ir →](03-cluster-secrets-and-access/create-roles-for-three-environments.md) |
+| 13. Asignar los roles al usuario | Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en su ambiente. | [Ir →](03-cluster-secrets-and-access/create-rolebindings-for-three-environments.md) |
+| 14. Crear los ServiceAccounts | Crear el ServiceAccount de cada app en su ambiente. | [Ir →](03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md) |
 
-Generar los valores de los secretos de cada ambiente. Guarda la salida.
-
-<p align="right"><a href="03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md">Ir →</a></p>
-
----
-
-### 8. Crear los Secrets de Kubernetes
-
-Cargar esos valores como Secrets de Kubernetes en el namespace de cada app.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-secrets-for-three-environments.md">Ir →</a></p>
-
----
-
-### 9. Configurar el certificado del API server
-
-Agregar la IP de Tailscale de cada VM al certificado del API server y regenerarlo, para poder conectarse desde la PC cliente.
-
-<p align="right"><a href="03-cluster-secrets-and-access/configure-api-server-certificate-for-three-environments.md">Ir →</a></p>
-
----
-
-### 10. Crear el usuario y su token
-
-Crear en cada ambiente el usuario `viewer-secrets-editor` (un ServiceAccount) y el Secret con su token.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-users-for-three-environments.md">Ir →</a></p>
-
----
-
-### 11. Crear el kubeconfig del usuario
-
-Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md">Ir →</a></p>
-
----
-
-### 12. Crear los roles
-
-Crear los roles de solo lectura y de edición de Secrets.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-roles-for-three-environments.md">Ir →</a></p>
-
----
-
-### 13. Asignar los roles al usuario
-
-Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en su ambiente.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-rolebindings-for-three-environments.md">Ir →</a></p>
-
----
-
-### 14. Crear los ServiceAccounts
-
-Crear el ServiceAccount de cada app en su ambiente.
-
-<p align="right"><a href="03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md">Ir →</a></p>
-
----
-
-## Grupo 4: Base de datos (pasos 15 al 18)
+## Grupo 4: Base de datos
 
 Desplegar PostgreSQL, crear las bases y las tablas, y cargar los datos iniciales.
 
-### 15. Desplegar PostgreSQL
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 15. Desplegar PostgreSQL | Desplegar PostgreSQL en cada ambiente. | [Ir →](04-database/deploy-postgres-for-three-environments.md) |
+| 16. Crear las bases de datos | Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente. | [Ir →](04-database/create-databases-for-three-environments.md) |
+| 17. Crear las tablas | Crear las tablas de cada base en cada ambiente. | [Ir →](04-database/create-tables-for-three-environments.md) |
+| 18. Cargar los datos iniciales | Insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente. | [Ir →](04-database/initialize-values-in-the-database-for-three-environments.md) |
 
-Desplegar PostgreSQL en cada ambiente.
-
-<p align="right"><a href="04-database/deploy-postgres-for-three-environments.md">Ir →</a></p>
-
----
-
-### 16. Crear las bases de datos
-
-Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente.
-
-<p align="right"><a href="04-database/create-databases-for-three-environments.md">Ir →</a></p>
-
----
-
-### 17. Crear las tablas
-
-Crear las tablas de cada base en cada ambiente.
-
-<p align="right"><a href="04-database/create-tables-for-three-environments.md">Ir →</a></p>
-
----
-
-### 18. Cargar los datos iniciales
-
-Insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente.
-
-<p align="right"><a href="04-database/initialize-values-in-the-database-for-three-environments.md">Ir →</a></p>
-
----
-
-## Grupo 5: GitHub y CI/CD (pasos 19 al 23)
+## Grupo 5: GitHub y CI/CD
 
 Clonar los repositorios, configurar los environments y secretos de GitHub, y crear el primer tag.
 
-### 19. Clonar los repositorios
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 19. Clonar los repositorios | Clonar los repositorios de la organización `jtagram` a tu organización de GitHub. | [Ir →](05-github-and-cicd/clone-organization-repositories.md) |
+| 20. Crear los environments de GitHub | En `deploy-hub-api`: `prod`, `dev` y `local`, con secretos y aprobadores. En cada app: solo `local`. | [Ir →](05-github-and-cicd/create-environment-in-github.md) |
+| 21. Obtener los valores de los secretos de GitHub Actions | Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos. | [Ir →](05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md) |
+| 22. Cargar los secretos en GitHub | Cargar los valores como Environment secrets: casi todos en `deploy-hub-api` y, en cada app, solo el token del deploy de local. | [Ir →](05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md) |
+| 23. Crear el primer tag | Crear el primer tag en GitHub y Docker Hub. | [Ir →](05-github-and-cicd/create-tag-for-dockerhub-and-github.md) |
 
-Clonar los repositorios de la organización `jtagram` a tu organización de GitHub.
-
-<p align="right"><a href="05-github-and-cicd/clone-organization-repositories.md">Ir →</a></p>
-
----
-
-### 20. Crear los environments de GitHub
-
-Crear los environments de GitHub: en `deploy-hub-api`, `prod`, `dev` y `local` con secretos y `production-approver` y `development-approver` solo con la aprobación manual; en cada app, solo `local`.
-
-<p align="right"><a href="05-github-and-cicd/create-environment-in-github.md">Ir →</a></p>
-
----
-
-### 21. Obtener los valores de los secretos de GitHub Actions
-
-Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos.
-
-<p align="right"><a href="05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md">Ir →</a></p>
-
----
-
-### 22. Cargar los secretos en GitHub
-
-Cargar esos valores por CLI como Environment secrets: casi todos en `deploy-hub-api`, y en cada app solo el token con el que dispara el deploy de local.
-
-<p align="right"><a href="05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md">Ir →</a></p>
-
----
-
-### 23. Crear el primer tag
-
-Crear el primer tag en GitHub y Docker Hub.
-
-<p align="right"><a href="05-github-and-cicd/create-tag-for-dockerhub-and-github.md">Ir →</a></p>
-
----
-
-## Grupo 6: Despliegue y operación (pasos 24 al 26)
+## Grupo 6: Despliegue y operación
 
 Hacer el primer deploy, exponer las apps y ver los logs.
 
-### 24. Hacer el primer deploy
-
-Hacer el primer deploy de cada app en cada ambiente.
-
-<p align="right"><a href="06-deploy-and-operation/first-deploy-for-three-environments.md">Ir →</a></p>
-
----
-
-### 25. Exponer las apps a Tailscale
-
-Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS.
-
-<p align="right"><a href="06-deploy-and-operation/expose-apps-to-tailscale-network-for-three-environments.md">Ir →</a></p>
-
----
-
-### 26. Implementar la observabilidad
-
-Instalar Loki, Alloy y Grafana en cada ambiente para ver los logs de las apps, y exponer Grafana a la tailnet.
-
-<p align="right"><a href="06-deploy-and-operation/implement-observability.md">Ir →</a></p>
-
----
+| Qué se hace | Descripción | Documento |
+|---|---|---|
+| 24. Hacer el primer deploy | Hacer el primer deploy de cada app en cada ambiente. | [Ir →](06-deploy-and-operation/first-deploy-for-three-environments.md) |
+| 25. Exponer las apps a Tailscale | Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS. | [Ir →](06-deploy-and-operation/expose-apps-to-tailscale-network-for-three-environments.md) |
+| 26. Implementar la observabilidad | Instalar Loki, Alloy y Grafana en cada ambiente y exponer Grafana a la tailnet. | [Ir →](06-deploy-and-operation/implement-observability.md) |
 
 <p align="right"><a href="README.md">← Back</a></p>
