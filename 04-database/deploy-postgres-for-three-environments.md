@@ -1,12 +1,5 @@
 # Desplegar PostgreSQL en los 3 ambientes
 
-Levanta un PostgreSQL en cada VM. Cada VM tiene su propio servidor en su namespace `databases`. Las bases y las tablas se crean después, en [create-databases-for-three-environments.md](create-databases-for-three-environments.md) y [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
-
-Necesitas:
-
-- Namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
-- Secret `postgres-credentials` en `databases` — [create-secrets-for-three-environments.md](../03-cluster-secrets-and-access/create-secrets-for-three-environments.md).
-
 ## Archivos usados
 
 Están en la carpeta [deploy-postgres/](deploy-postgres):

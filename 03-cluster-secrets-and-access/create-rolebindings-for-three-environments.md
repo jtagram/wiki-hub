@@ -1,30 +1,5 @@
 # Asignar los roles al usuario en los 3 ambientes
 
-Asigna los roles al `ServiceAccount` `viewer-secrets-editor` en cada VM (`local`, `dev` y `prod`):
-
-- Un `ClusterRoleBinding` le da `cluster-viewer`: ve todo el cluster.
-- Un `RoleBinding` por namespace le da `secrets-editor`: edita Secrets solo en los namespaces de su ambiente.
-
-Al terminar, el usuario puede:
-
-- **Ver todo el cluster de su VM** (`get`, `list`, `watch`), incluidos los valores de los Secrets.
-- **Crear, editar y borrar Secrets solo en los namespaces de su ambiente.**
-- **Nada más.**
-
-Necesitas:
-
-- El usuario y su token — [create-users-for-three-environments.md](create-users-for-three-environments.md).
-- El kubeconfig del usuario — [create-kubeconfig-for-three-environments.md](create-kubeconfig-for-three-environments.md).
-- Los roles `cluster-viewer` y `secrets-editor` — [create-roles-for-three-environments.md](create-roles-for-three-environments.md).
-- Los namespaces de cada ambiente — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
-- Tu PC cliente con `kubectl` y conectada a la tailnet.
-
-Namespaces de cada ambiente donde el usuario edita Secrets: `iam`, `iam-api`, `infra-hub-api`, `ticket-hub`, `ticket-hub-api`, `databases` y `tailscale`, con el prefijo del ambiente.
-
-Los pasos de cada ambiente se ejecutan desde tu PC cliente, dentro de la VM.
-
----
-
 ## local
 
 ```bash

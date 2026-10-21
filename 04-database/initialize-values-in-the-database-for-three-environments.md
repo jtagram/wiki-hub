@@ -1,12 +1,5 @@
 # Inicializar los valores en las bases de datos de los 3 ambientes
 
-Inserta en la base `iam_api` de cada VM los datos mínimos para usar el sistema por primera vez: aplicaciones (frontends y APIs), rol `ADMIN`, primer usuario administrador con sus accesos y conexiones y la cuenta de servicio de `ticket-hub-api`.
-
-Necesitas:
-
-- Bases y tablas creadas en las 3 VMs — [create-databases-for-three-environments.md](create-databases-for-three-environments.md) y [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
-- El bloque de cada ambiente generado por [main.sh](../03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md). Cada ambiente tiene su propio bloque, con valores distintos.
-
 ## Valores aleatorios a agregar
 
 Cada SQL de este instructivo ya trae el nombre, el apellido y el email del administrador de su ambiente. Solo debes reemplazar a mano dos valores, que salen del bloque de ese ambiente generado por `main.sh`:

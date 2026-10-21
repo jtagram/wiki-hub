@@ -1,20 +1,5 @@
 # Crear los roles de lectura y de edición de Secrets en los 3 ambientes
 
-Crea en cada VM (`local`, `dev` y `prod`) los dos `ClusterRole` que definen qué puede hacer el usuario `viewer-secrets-editor`:
-
-- **`cluster-viewer`**: solo lectura (`get`, `list`, `watch`) sobre todos los recursos.
-- **`secrets-editor`**: crear, actualizar, modificar y borrar Secrets.
-
-Un rol por sí solo no da permisos a nadie: se asigna al usuario en [create-rolebindings-for-three-environments.md](create-rolebindings-for-three-environments.md).
-
-Necesitas:
-
-- El addon `rbac` habilitado en las 3 VMs — [install-microk8s-for-three-environments.md](../02-microk8s-base/install-microk8s-for-three-environments.md). Compruébalo con `microk8s status | grep rbac` dentro de cada VM: debe aparecer bajo `enabled`. Sin RBAC los permisos de este instructivo no se aplican.
-
-Los pasos de cada ambiente se ejecutan desde tu PC cliente, dentro de la VM.
-
----
-
 ## local
 
 ```bash

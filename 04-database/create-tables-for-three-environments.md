@@ -1,12 +1,5 @@
 # Crear las tablas en los 3 ambientes
 
-Crea las tablas de cada base de los backends (`iam_api`, `infra_hub_api` y `ticket_hub_api`) en el PostgreSQL de cada VM. Son necesarias porque los backends no crean las tablas solos.
-
-Necesitas:
-
-- Las 3 bases creadas en las 3 VMs — [create-databases-for-three-environments.md](create-databases-for-three-environments.md).
-- El `POSTGRES_USER` de cada ambiente: `jtagram_local`, `jtagram_dev` y `jtagram_prod`.
-
 ## Archivos usados
 
 Están en la carpeta [create-tables/](create-tables):

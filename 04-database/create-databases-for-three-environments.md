@@ -1,12 +1,5 @@
 # Crear las bases de datos en los 3 ambientes
 
-Crea las 3 bases de los backends en el PostgreSQL de cada VM: `iam_api`, `infra_hub_api` y `ticket_hub_api`. Las tablas se crean después, en [create-tables-for-three-environments.md](create-tables-for-three-environments.md).
-
-Necesitas:
-
-- PostgreSQL desplegado y en `Running` en las 3 VMs — [deploy-postgres-for-three-environments.md](deploy-postgres-for-three-environments.md).
-- El `POSTGRES_USER` de cada ambiente, del bloque generado por [main.sh](../03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md): `jtagram_local`, `jtagram_dev` y `jtagram_prod`.
-
 ## Archivos usados
 
 Están en la carpeta [create-databases/](create-databases):

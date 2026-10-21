@@ -1,13 +1,5 @@
 # Crear serviceaccounts en los 3 ambientes
 
-Cada app corre con su propio `ServiceAccount`, que lleva el mismo nombre de la app. El `Deployment` lo referencia con `serviceAccountName: <app>`. Si no existe, el Pod no se crea (`FailedCreate`).
-
-Se crea una sola vez por app y por ambiente, antes del primer deploy. Cada VM solo necesita los de su ambiente.
-
-Necesitas los namespaces creados en las 3 VMs — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
-
-Todos los comandos se ejecutan desde tu PC cliente, dentro de cada VM.
-
 ## local
 
 ```bash
