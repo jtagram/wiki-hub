@@ -1,6 +1,11 @@
 # Funcionamiento del ecosistema
 
-Cómo funcionan las piezas del ecosistema una vez instaladas. Para instalarlas, ver [set-up-the-ecosystem-jtagram.md](../set-up-the-ecosystem-jtagram.md).
+Cómo funcionan las piezas del ecosistema una vez instaladas.
+
+| Aplicación | Qué explica | Documento |
+|---|---|---|
+| ticket-hub | Para qué sirve la aplicación y cómo funciona cada una de sus opciones | [Ir →](ticket-hub/ticket-hub.md) |
+| iam | Para qué sirve la aplicación y cómo funciona cada una de sus opciones | [Ir →](iam/iam.md) |
 
 | Tema | Qué explica | Documento |
 |---|---|---|
