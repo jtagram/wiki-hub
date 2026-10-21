@@ -48,12 +48,4 @@ Es el **único lugar** donde se declaran las variables de una API, y la lista co
 
 El código de negocio nunca lee `process.env`: pide el valor a `ConfigService`.
 
-## Por qué centralizarlo
-
-- **Falla temprano:** un error de configuración se detecta al arrancar, con el nombre de la variable, no en medio de un request.
-- **Contrato explícito:** `env.validation.ts` es la lista de lo que la API necesita; no hay que buscar usos sueltos en el código.
-- **Secretos fuera del código:** los valores sensibles llegan desde Secrets de Kubernetes, nunca desde archivos del repo.
-- **Un cambio, un lugar:** agregar una variable se hace en `env.validation.ts`, `deployment.yaml` y `.env.example`.
-- **Testeable:** `validate` es una función pura, se prueba sin levantar la app.
-
 <p align="right"><a href="operation.md">← Back</a></p>

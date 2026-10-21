@@ -97,11 +97,4 @@ Los nombres de los roles se escriben tal cual en el código (incluido `KUBERNATE
 
 Los guards se registran como globales (`APP_GUARD`), así que aplican a toda la API sin repetirlos en cada controlador. En `iam-api`, una ruta que no es pública y no declara `@Roles` se **deniega**; en `ticket-hub-api` e `infra-hub-api`, la deja pasar si el token es válido.
 
-## Por qué centralizarlo
-
-- **La regla vive junto al endpoint:** `@Roles(...)` dice quién puede entrar, sin lógica de permisos dentro del código de negocio.
-- **Guards globales:** una ruta nueva queda protegida por el token sin trabajo extra.
-- **Un solo modelo de permisos:** personas y aplicaciones usan los mismos roles y las mismas reglas.
-- **Permisos por aplicación:** un usuario puede ser administrador de una aplicación y no tener acceso a otra.
-
 <p align="right"><a href="operation.md">← Back</a></p>

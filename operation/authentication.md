@@ -100,11 +100,4 @@ Credenciales de máquina para que una aplicación llame a otra.
 
 Rutas públicas (sin token): los dos logins, `GET /health` y `GET /.well-known/jwks.json` en `iam-api`; `GET /` y `GET /health` en las otras dos APIs.
 
-## Por qué centralizarlo en iam-api
-
-- **Un solo emisor:** las credenciales se validan en un único lugar; las demás APIs nunca las ven.
-- **La clave privada no sale de iam-api:** el resto solo tiene la clave pública.
-- **Rotar claves sin tocar las APIs:** la clave pública se publica por JWKS y las APIs la refrescan solas.
-- **Mismo flujo para personas y aplicaciones:** un solo conjunto de reglas de acceso y de errores.
-
 <p align="right"><a href="operation.md">← Back</a></p>

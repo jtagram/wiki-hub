@@ -40,10 +40,6 @@ Un conjunto de 3 filtros de excepciones de NestJS que atrapan **todo** error que
 
 El mensaje genérico es `An unexpected error occurred. Please try again later.` y está definido una sola vez en `generic-error-message.ts`.
 
-### Cómo se elige el filtro
-
-NestJS evalúa los filtros globales en **orden inverso** al registro y usa el primero cuyo `@Catch()` coincide. Por eso el filtro que atrapa todo (`UnknownExceptionFilter`) se registra **primero**: así se prueba **último**, solo si ningún filtro específico coincide.
-
 ### Qué ve el cliente y qué ve el log
 
 | | Cliente | Log (Grafana) |
@@ -64,13 +60,5 @@ Los parámetros de la consulta no se escriben en el log: `err.parameters` se ocu
 Los 3 filtros y `generic-error-message.ts` son idénticos en las 3 APIs, con sus tests en `__tests__/`.
 
 Es el **único lugar** donde se decide qué se loguea y qué se responde ante un error. Los controladores y servicios solo lanzan el error; no lo registran ni lo formatean.
-
-## Por qué centralizarlo
-
-- **Respuestas uniformes:** todos los errores de la API salen con la misma forma.
-- **Sin filtrar información interna:** el stack, el SQL y los detalles de la base de datos van al log, nunca al cliente.
-- **Logs consistentes:** todo error queda con los mismos campos (`err`, `errorType`, `msg`), así una consulta en Grafana sirve para cualquier error.
-- **Código de negocio más simple:** no hace falta `try/catch` en cada endpoint solo para dar formato a la respuesta.
-- **Testeable:** cada filtro se prueba por separado, sin levantar la app.
 
 <p align="right"><a href="operation.md">← Back</a></p>

@@ -21,9 +21,10 @@ Se lanza a mano (`workflow_dispatch`) desde **`deploy-hub-api`** y siempre arran
 - `previous_stable_tag`: la última versión estable. Debe **existir ya**, en git (en el repo de la app) y en Docker Hub.
 - `new_tag`: la versión que se va a publicar y desplegar. Debe **no existir todavía**.
 
-El prefijo evita que los tags de dev y prod choquen, porque un tag de git y una imagen de Docker Hub son únicos por repositorio. Más detalle en [create-tag-for-dockerhub-and-github.md](../05-github-and-cicd/create-tag-for-dockerhub-and-github.md).
+Cada app tiene un workflow propio por cada ambiente (`local`, `dev` y `prod`) en `deploy-hub-api`, con el nombre `deploy-<app>-<ambiente>.yml`. Ese archivo es solo una puerta de entrada: define los parámetros de esa app y ese ambiente y los pasa a un workflow reutilizable, donde está la lógica real:
 
-Cada app y ambiente tiene su workflow en `deploy-hub-api` (`deploy-<app>-<ambiente>.yml`), que solo pasa sus parámetros al workflow reutilizable `deploy.yml`.
+- **dev y prod:** `deploy-<app>-dev.yml` y `deploy-<app>-prod.yml` llaman a `deploy.yml`.
+- **local:** `deploy-<app>-local.yml` llama a `deploy-local.yml`, más simple y sin aprobación.
 
 | Ambiente | Se lanza desde la rama de `deploy-hub-api` | Compila la rama de la app | Aprobación |
 |---|---|---|---|
@@ -53,7 +54,7 @@ Cada app y ambiente tiene su workflow en `deploy-hub-api` (`deploy-<app>-<ambien
 |---|---|
 | 1 | Verifica que el workflow se haya lanzado desde la rama permitida de `deploy-hub-api` (`dev` o `master`) |
 | 2 | Verifica que los parámetros del workflow de la app (`app_name`, `namespace`, `app_ref`, etc.) no lleguen vacíos |
-| 3 | Verifica que `previous_stable_tag` y `new_tag` no estén vacíos, que empiecen con el prefijo del ambiente y que tengan el formato `vNUMERO.NUMERO.NUMERO` |
+| 3 | Valida `previous_stable_tag` y `new_tag`: que no estén vacíos y que sigan el formato del ambiente, el prefijo (`dev-` o `prod-`) seguido de `vNUMERO.NUMERO.NUMERO`, por ejemplo `dev-v0.1.5` |
 | 4-5 | Verifica que estén todos los secrets y que los manifiestos de k8s sean YAML válido |
 | 6 | Clona la rama de la app y fija su commit; comprueba que `previous_stable_tag` exista y que `new_tag` no exista, en git y en Docker Hub |
 | 7 | `npm run lint`, `format:check`, tests unitarios y, solo en los backends, e2e (los frontends no los ejecutan) |
@@ -118,23 +119,5 @@ Cada ejecución de dev y prod deja en el *Summary* de `deploy-hub-api` los tags 
 Apps: `iam`, `iam-api`, `ticket-hub`, `ticket-hub-api`, `infra-hub-api`.
 
 Los secrets se cargan por environment de GitHub (`local`, `dev`, `prod`): [load-secrets-for-github-action-for-three-environments.md](../05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md).
-
-## Por qué todo en deploy-hub-api
-
-**Criterio principal: que un cambio accidental o hecho con IA en una app no pueda desplegar directo.**
-
-El código de una app se modifica seguido (a mano o con IA) y una aprobación puede darse sin revisar todo. Por eso lo que compila, publica y toca el cluster vive aparte, en `deploy-hub-api`, que se cambia con más cuidado.
-
-- **Las apps no tienen credenciales del cluster ni de Docker Hub:** el kubeconfig, los secrets de Tailscale y de Docker Hub viven solo en `deploy-hub-api`. Un workflow de app solo puede pedir que se despliegue su rama `local`; no puede cambiar manifiestos, pasos de rollout ni secrets.
-- **Límite:** esto reduce el daño posible, no lo elimina. Lo completan la aprobación manual de dev/prod, la validación de la rama de lanzamiento y las validaciones previas. La rama de lanzamiento se valida dentro del workflow, así que quien pueda editarlo podría quitar ese chequeo: lo refuerza restringir las ramas permitidas en cada Environment de GitHub.
-- **Recomendado:** proteger las ramas de `deploy-hub-api` (PR y revisión obligatorios). Esa configuración está en GitHub, no en el código.
-
-Otros beneficios:
-
-- **Un solo lugar:** la lógica del release, los manifiestos y los pasos de rollout están en un repo, no copiados en cada app. Un arreglo en `deploy.yml` o en un script aplica a las 5 apps.
-- **Traspaso a otro equipo:** si un equipo (por ejemplo, plataforma o DevOps) asume los deploys, se lleva `deploy-hub-api` completo sin tocar las apps. Para que siga así, las apps solo conocen del deploy el nombre del workflow de local, la rama `local` y el token de dispatch.
-- **Se publica lo que pasó los controles:** antes de compilar se valida que los tags sean correctos y que el código pase lint y tests, y el tag de git se crea sobre el mismo commit.
-- **Control por ambiente:** dev y prod exigen aprobación manual; local es directo para iterar rápido.
-- **Scripts en vez de YAML largo:** la lógica está en scripts con nombre claro, que se leen y prueban por separado.
 
 <p align="right"><a href="operation.md">← Back</a></p>

@@ -59,12 +59,4 @@ En cada API, en una sola carpeta:
 
 Es el **único lugar** donde se configura el logger de cada API. El resto del código solo inyecta `Logger` de `nestjs-pino` y lo usa; nunca crea ni configura una instancia propia.
 
-## Por qué centralizarlo
-
-- **Un cambio, un archivo:** agregar un campo a redactar o cambiar el formato se hace en `logger.config.ts` y aplica a toda la API.
-- **Seguridad consistente:** ningún servicio puede olvidarse de ocultar secretos, porque la regla no vive en cada servicio.
-- **Logs uniformes:** todos los logs tienen el mismo formato y el mismo `req.id`, así que una misma consulta en Loki sirve para cualquier parte de la API.
-- **Testeable:** la config es una función pura (`buildLoggerOptions`), se prueba sin levantar la app.
-- **Fácil de entender:** quien llega nuevo sabe dónde mirar.
-
 <p align="right"><a href="operation.md">← Back</a></p>
