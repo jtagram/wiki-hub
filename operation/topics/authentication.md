@@ -30,13 +30,13 @@ Hay dos tipos de usuario, con el mismo flujo y credenciales distintas:
 └──────────────────┘   └──────────────────┘   └──────────────────┘
 ```
 
-| Paso | Qué pasa | Dónde se configura |
-|---|---|---|
-| 1 | El cliente envía el login con sus credenciales y los 2 headers | Frontend: `<frontend>/app/api/auth/`. Servicio: `ticket-hub-api/src/common/iam-api-auth/` |
-| 2 | `iam-api` valida las credenciales y los permisos de acceso | `iam-api/src/modules/internal-users/` y `apps-users/` |
-| 3 | `iam-api` firma el JWT con RS256 y devuelve `access_token` | `JWT_PRIVATE_KEY` y `JWT_EXPIRES_IN` |
-| 4 | El cliente envía el token en cada petición como `Bearer` | Frontend: cookie `httpOnly`. Servicio: token en caché |
-| 5 | `JwtAuthGuard` verifica firma y expiración con la clave pública | `<api>/src/common/guards/jwt-auth.guard.ts` |
-| 6 | La API responde; si el token es inválido, `401` | — |
+| Paso | Qué pasa |
+|---|---|
+| 1 | El cliente envía el login con sus credenciales y los 2 headers |
+| 2 | `iam-api` valida las credenciales y los permisos de acceso |
+| 3 | `iam-api` firma el JWT con RS256 y devuelve `access_token` |
+| 4 | El cliente envía el token en cada petición como `Bearer` |
+| 5 | `JwtAuthGuard` verifica firma y expiración con la clave pública |
+| 6 | La API responde; si el token es inválido, `401` |
 
 <p align="right"><a href="../operation.md">← Back</a></p>

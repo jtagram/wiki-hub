@@ -44,12 +44,12 @@ Para obtener un token, el usuario necesita: acceso a la aplicación de origen y 
                                              └──────────────────┘
 ```
 
-| Paso | Qué pasa | Dónde se configura |
-|---|---|---|
-| 1 | La petición llega con `Authorization: Bearer <token>` | — |
-| 2 | `JwtAuthGuard` verifica el token; si no es válido, `401` | `<api>/src/common/guards/jwt-auth.guard.ts` |
-| 3 | Se comprueba que el token sea de esta aplicación; si no, `403` | `RolesGuard` (en `iam-api`, `ApplicationAccessGuard`) |
-| 4 | Se comprueba que tenga alguno de los roles de `@Roles(...)`; si no, `403` | `@Roles(...)` en el controlador |
-| 5 | Se ejecuta el endpoint | — |
+| Paso | Qué pasa |
+|---|---|
+| 1 | La petición llega con `Authorization: Bearer <token>` |
+| 2 | `JwtAuthGuard` verifica el token; si no es válido, `401` |
+| 3 | Se comprueba que el token sea de esta aplicación; si no, `403` |
+| 4 | Se comprueba que tenga alguno de los roles de `@Roles(...)`; si no, `403` |
+| 5 | Se ejecuta el endpoint |
 
 <p align="right"><a href="../operation.md">← Back</a></p>

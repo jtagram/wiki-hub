@@ -20,11 +20,11 @@ La documentación interactiva de cada API (OpenAPI), generada desde el propio c�
                               └──────────────────────────────────┘
 ```
 
-| Paso | Qué pasa | Dónde se configura |
-|---|---|---|
-| 1 | El controlador declara `@ApiTags` y un decorador por endpoint | `<módulo>.controller.ts` |
-| 2 | Un decorador compuesto describe el endpoint: resumen, respuestas y errores | `modules/<módulo>/swagger/` |
-| 3 | `setupSwagger` lee todo y arma el documento OpenAPI | `common/swagger/setup-swagger.ts`, llamado desde `main.ts` |
-| 4 | Se publica la página interactiva en `/docs` | Ruta `/docs` de cada API |
+| Paso | Qué pasa |
+|---|---|
+| 1 | El controlador declara `@ApiTags` y un decorador por endpoint |
+| 2 | Un decorador compuesto describe el endpoint: resumen, respuestas y errores |
+| 3 | `setupSwagger` lee todo y arma el documento OpenAPI |
+| 4 | Se publica la página interactiva en `/docs` |
 
 <p align="right"><a href="../operation.md">← Back</a></p>

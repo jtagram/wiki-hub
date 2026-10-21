@@ -20,13 +20,13 @@ Un módulo de logging estructurado (JSON) basado en [`nestjs-pino`](https://gith
 └──────────────────┘   └──────────────────┘   └──────────────────┘
 ```
 
-| Paso | Qué pasa | Dónde se configura |
-|---|---|---|
-| 1-2 | La API loguea un objeto; pino lo serializa a JSON y oculta los secretos | `src/instrument/logger/` de cada API |
-| 3 | El JSON sale por stdout del contenedor | — |
-| 4 | Alloy (uno por VM) lee los logs de todos los pods y los etiqueta | `alloy-values.yaml` |
-| 5 | Loki los almacena | `loki-values.yaml` |
-| 6 | Grafana los muestra | `grafana-values.yaml` |
+| Paso | Qué pasa |
+|---|---|
+| 1-2 | La API loguea un objeto; pino lo serializa a JSON y oculta los secretos |
+| 3 | El JSON sale por stdout del contenedor |
+| 4 | Alloy (uno por VM) lee los logs de todos los pods y los etiqueta |
+| 5 | Loki los almacena |
+| 6 | Grafana los muestra |
 
 Los pasos 4-6 se instalan en [implement-observability.md](../../set-up/06-deploy-and-operation/implement-observability.md).
 

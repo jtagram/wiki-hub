@@ -22,12 +22,12 @@ Las APIs (`iam-api`, `infra-hub-api`, `ticket-hub-api`) reciben su configuració
 └──────────────────┘   └──────────────────┘   └──────────────────┘
 ```
 
-| Paso | Qué pasa | Dónde se define |
-|---|---|---|
-| 1 | Los valores sensibles viven en Secrets de Kubernetes del namespace de cada app | [create-secrets-for-three-environments.md](../../set-up/03-cluster-secrets-and-access/create-secrets-for-three-environments.md) |
-| 2 | El Deployment inyecta cada variable: desde un Secret (`secretKeyRef`) o con un valor fijo (`value`) | `deploy-hub-api/.github/workflows/<app>/manifests/deployment.yaml` |
-| 3 | Kubernetes arranca el contenedor con esas variables | — |
-| 4 | `EnvModule` valida que existan y tengan el tipo correcto | `<app>/src/common/config/` |
-| 5-6 | El resto del código lee los valores con `ConfigService` | Servicios, conectores y módulos de cada API |
+| Paso | Qué pasa |
+|---|---|
+| 1 | Los valores sensibles viven en Secrets de Kubernetes del namespace de cada app |
+| 2 | El Deployment inyecta cada variable: desde un Secret (`secretKeyRef`) o con un valor fijo (`value`) |
+| 3 | Kubernetes arranca el contenedor con esas variables |
+| 4 | `EnvModule` valida que existan y tengan el tipo correcto |
+| 5-6 | El resto del código lee los valores con `ConfigService` |
 
 <p align="right"><a href="../operation.md">← Back</a></p>
