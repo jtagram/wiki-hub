@@ -44,9 +44,9 @@ está dimensionado para un entorno chico.
 
 ## Documentación
 
-| Tema | Documento |
-|---|---|
-| Cómo montar el ecosistema | [Ir →](set-up/set-up-the-ecosystem-jtagram.md) |
-| Cómo funciona el ecosistema | [Ir →](operation/operation.md) |
-| Cómo usar el ecosistema | [Ir →](usage/how-to-use.md) |
-| Componentes del ecosistema | [Ir →](components/ecosystem-components.md) |
+| Tema | Qué encontrarás | Documento |
+|---|---|---|
+| Componentes del ecosistema | Qué piezas tiene | [Ir →](components/ecosystem-components.md) |
+| Cómo usar el ecosistema | Qué se puede hacer con ellas | [Ir →](usage/how-to-use.md) |
+| Cómo funciona el ecosistema | Cómo trabajan por dentro | [Ir →](operation/operation.md) |
+| Cómo montar el ecosistema | Cómo instalarlo todo | [Ir →](set-up/set-up-the-ecosystem-jtagram.md) |
