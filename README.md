@@ -34,6 +34,9 @@ desarrollo hogareño (home lab) y proyectos personales**: un servidor propio en 
 máquinas virtuales, donde una sola persona o un equipo muy chico monta y opera todo el
 ecosistema.
 
+Es un **proyecto de portafolio**: sirve para mostrar, en entrevistas laborales, cómo se diseña
+y organiza un entorno de desarrollo. No está pensado para comercializarse.
+
 La misma estructura se puede llevar a mayor escala, por ejemplo en una empresa que recién
 comienza. Para eso habría que adaptar la infraestructura y robustecer la lógica, ya que acá
 está dimensionado para un entorno chico.
