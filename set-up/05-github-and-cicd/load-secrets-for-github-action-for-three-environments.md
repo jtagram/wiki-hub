@@ -1,30 +1,5 @@
 # Cargar los secretos de GitHub Actions por CLI en los 3 ambientes
 
-Carga con la CLI de `gh` los secretos de cada ambiente como **Environment secrets**. Los bloques están listos para copiar y pegar: solo cambia `<tu-organizacion>` y cada `<VALOR>` por el valor real.
-
-Los valores se obtienen en [generate-secret-values-for-github-action-for-three-environments.md](generate-secret-values-for-github-action-for-three-environments.md).
-
-Necesitas:
-
-- Los Environments creados en cada repositorio — [create-environment-in-github.md](create-environment-in-github.md). Un Environment secret solo se puede cargar si el Environment ya existe.
-- La CLI `gh` autenticada con permisos de administración sobre los repositorios (`gh auth status`).
-- En la carpeta desde la que pegas los comandos, los kubeconfig del ServiceAccount `deployer` que bajaste en el paso anterior: `pcbox-kubeconfig-deployer-prod.yaml`, `pcbox-kubeconfig-deployer-dev.yaml` y `pcbox-kubeconfig-deployer-local.yaml`.
-
-Casi todos los secretos van en `deploy-hub-api`, porque ahí corre todo el flujo. Cada ambiente usa el mismo nombre de secreto con su propio valor, en el Environment del mismo nombre (`prod`, `dev` o `local`). Las apps solo llevan un secreto, y solo en `local`. No cargues secretos en `production-approver` ni en `development-approver`.
-
-| Dónde | `prod` | `dev` | `local` |
-|---|---|---|---|
-| `deploy-hub-api` | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`, `APP_REPO_TOKEN` | los mismos 6 | `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` |
-| cada app | ninguno | ninguno | `DISPATCH_DEPLOY_HUB_API_LOCAL` |
-
-Los valores quedan en el historial de la terminal. Al terminar de cargar un ambiente, borra las variables:
-
-```bash
-unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET APP_REPO_TOKEN DISPATCH_DEPLOY_HUB_API_LOCAL
-```
-
----
-
 ## prod
 
 Ejecuta los comandos **desde la carpeta donde está `pcbox-kubeconfig-deployer-prod.yaml`**. El comando de `KUBECONFIG_MICROK8S` lo lee con una ruta relativa y, si estás en otra carpeta, falla con "No such file or directory".
@@ -58,6 +33,12 @@ echo "deploy-hub-api"; gh secret list --env prod --repo "$ORG/deploy-hub-api"
 ```
 
 `deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y `APP_REPO_TOKEN`. Las apps no llevan secretos en `prod`: sus workflows de prod ya no existen, porque todo el flujo corre en `deploy-hub-api`.
+
+Al terminar, borra las variables:
+
+```bash
+unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET APP_REPO_TOKEN DISPATCH_DEPLOY_HUB_API_LOCAL
+```
 
 ---
 
@@ -94,6 +75,12 @@ echo "deploy-hub-api"; gh secret list --env dev --repo "$ORG/deploy-hub-api"
 ```
 
 `deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` y `APP_REPO_TOKEN`. Las apps no llevan secretos en `dev`: sus workflows de dev ya no existen, porque todo el flujo corre en `deploy-hub-api`.
+
+Al terminar, borra las variables:
+
+```bash
+unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET APP_REPO_TOKEN DISPATCH_DEPLOY_HUB_API_LOCAL
+```
 
 ---
 
@@ -141,5 +128,11 @@ echo "ticket-hub-api"; gh secret list --env local --repo "$ORG/ticket-hub-api"
 ```
 
 `deploy-hub-api` debe listar `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `KUBECONFIG_MICROK8S`, `TS_OAUTH_CLIENT_ID` y `TS_OAUTH_SECRET`. Cada app debe listar solo `DISPATCH_DEPLOY_HUB_API_LOCAL`.
+
+Al terminar, borra las variables:
+
+```bash
+unset DOCKERHUB_USERNAME DOCKERHUB_TOKEN TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET APP_REPO_TOKEN DISPATCH_DEPLOY_HUB_API_LOCAL
+```
 
 <p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

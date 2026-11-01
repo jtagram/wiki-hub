@@ -1,12 +1,5 @@
 # Configurar llaves de acceso para los 3 ambientes
 
-Deja el acceso por SSH a las VMs `local`, `dev` y `prod` solo con llave. La contraseña de `ubuntu` queda únicamente para el acceso local desde `pcbox`. El usuario `ubuntu` usa `sudo` sin pedir contraseña.
-
-Necesitas:
-
-- Las 3 VMs conectadas a la tailnet — [configure-tailscale-for-three-environments.md](configure-tailscale-for-three-environments.md).
-- Tu PC cliente conectada a la tailnet — [pcbox-bootstrap.md](pcbox-bootstrap.md).
-
 ## 1. Crear una llave por ambiente
 
 Desde tu PC cliente:
@@ -56,7 +49,7 @@ multipass exec prod -- sh -c 'cat /tmp/pcbox_prod.pub >> ~/.ssh/authorized_keys'
 
 ## 4. Dejar SSH solo con llave
 
-El usuario `ubuntu` no tiene contraseña. Cada comando `passwd` te pide definir una. Guárdala: es el `SSH_PASSWORD` de ese ambiente. Solo sirve para el acceso local desde `pcbox`; por SSH ya no se acepta.
+El usuario `ubuntu` no tiene contraseña. Cada comando `passwd` te pide definir una. Guárdala. Solo sirve para el acceso local desde `pcbox`; por SSH ya no se acepta.
 
 El archivo se llama `01-` para que se lea antes que los de cloud-init.
 
@@ -88,9 +81,9 @@ Sal de `pcbox` con `exit`.
 Desde tu PC cliente. Con llave, cada comando debe imprimir `OK` sin pedir contraseña:
 
 ```bash
-ssh -i ~/.ssh/pcbox_local ubuntu@pcbox-local 'sudo -n true && echo OK'
-ssh -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev 'sudo -n true && echo OK'
-ssh -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod 'sudo -n true && echo OK'
+ssh -i ~/.ssh/pcbox_local ubuntu@pcbox-local 'echo OK'
+ssh -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev 'echo OK'
+ssh -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod 'echo OK'
 ```
 
 Con contraseña, cada comando debe fallar con `Permission denied (publickey)`:

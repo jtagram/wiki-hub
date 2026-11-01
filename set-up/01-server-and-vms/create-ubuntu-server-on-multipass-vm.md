@@ -1,9 +1,5 @@
 # Crear las VMs con Multipass
 
-Crea una máquina virtual Ubuntu Server por ambiente: `local`, `dev` y `prod`.
-
-Necesitas Multipass instalado — [install-multipass.md](install-multipass.md).
-
 ## 0. Acceder a pcbox por SSH
 
 Desde la terminal de la PC cliente, accede a `pcbox` con la llave `deploy_key` ([pcbox-bootstrap.md](pcbox-bootstrap.md)):
@@ -18,14 +14,14 @@ Los comandos de los pasos siguientes se ejecutan en esa sesión.
 
 | VM | Memoria | CPUs | Disco |
 |---|---|---|---|
-| `local` | 3 GB | 2 | 20 GB |
-| `dev` | 3 GB | 2 | 20 GB |
-| `prod` | 4 GB | 2 | 20 GB |
+| `local` | 5 GB | 2 | 25 GB |
+| `dev` | 5 GB | 2 | 25 GB |
+| `prod` | 6 GB | 2 | 30 GB |
 
 ```bash
-multipass launch --name local --memory 3G --cpus 2 --disk 20G
-multipass launch --name dev --memory 3G --cpus 2 --disk 20G
-multipass launch --name prod --memory 4G --cpus 2 --disk 20G
+multipass launch --name local --memory 5G --cpus 2 --disk 25G
+multipass launch --name dev --memory 5G --cpus 2 --disk 25G
+multipass launch --name prod --memory 6G --cpus 2 --disk 30G
 ```
 
 ## 2. Verificar

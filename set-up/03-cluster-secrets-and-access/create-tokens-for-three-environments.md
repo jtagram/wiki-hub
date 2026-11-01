@@ -1,16 +1,5 @@
 # Crear los tokens en los 3 ambientes
 
-Desde tu PC cliente. Cada comando se ejecuta en la VM por SSH, sin abrir sesión.
-
-Necesitas los `ServiceAccount` `viewer-secrets-editor` y `deployer`, creados en [create-serviceaccounts-for-three-environments.md](create-serviceaccounts-for-three-environments.md).
-
-Desde Kubernetes 1.24 no se crea un token de larga duración por cada `ServiceAccount`: hay que pedirlo. Estos tokens no expiran.
-
-Se crea un `Secret` por `ServiceAccount` en cada ambiente:
-
-- `viewer-secrets-editor-token`: el token del usuario que usa el kubeconfig de [create-kubeconfig-for-three-environments.md](create-kubeconfig-for-three-environments.md).
-- `deployer-token`: el token del que usa `deploy-hub-api` para desplegar. Con él se arma el kubeconfig de [generate-secret-values-for-github-action-for-three-environments.md](../05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md).
-
 ## local
 
 Token de `viewer-secrets-editor`:

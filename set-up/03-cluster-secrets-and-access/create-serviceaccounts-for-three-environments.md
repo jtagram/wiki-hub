@@ -1,15 +1,5 @@
 # Crear los ServiceAccounts en los 3 ambientes
 
-Desde tu PC cliente. Cada comando se ejecuta en la VM por SSH, sin abrir sesión.
-
-Necesitas los namespaces de cada ambiente — [create-namespaces-for-three-environments.md](../02-microk8s-base/create-namespaces-for-three-environments.md).
-
-Se crean todos los `ServiceAccount` de cada ambiente:
-
-- `viewer-secrets-editor` (namespace `microk8s-access`): el usuario de acceso al cluster.
-- `deployer` (namespace `microk8s-access`): el que usa `deploy-hub-api` para desplegar.
-- Uno por app (`iam`, `iam-api`, `infra-hub-api`, `ticket-hub` y `ticket-hub-api`), cada uno en su namespace.
-
 ## local
 
 ```bash

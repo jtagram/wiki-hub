@@ -16,7 +16,7 @@ Preparar el servidor `pcbox` y las 3 máquinas virtuales.
 | 1. Instalar Multipass | Instalar Multipass en el servidor `pcbox`. | [Ir →](01-server-and-vms/install-multipass.md) |
 | 2. Crear las VMs con Ubuntu Server | Crear las 3 VMs con Ubuntu Server. | [Ir →](01-server-and-vms/create-ubuntu-server-on-multipass-vm.md) |
 | 3. Conectar las VMs a la tailnet | Conectar las VMs a la tailnet. | [Ir →](01-server-and-vms/configure-tailscale-for-three-environments.md) |
-| 4. Configurar el acceso a las VMs | Configurar el acceso con llave y contraseña, y `sudo` sin contraseña. | [Ir →](01-server-and-vms/configure-access-key-for-three-environments..md) |
+| 4. Configurar el acceso a las VMs | Configurar el acceso por SSH con llave y definir la contraseña de acceso local. | [Ir →](01-server-and-vms/configure-access-key-for-three-environments..md) |
 
 ## Grupo 2: Base de MicroK8s
 

@@ -1,12 +1,5 @@
 # Configurar Tailscale en las 3 VMs
 
-Conecta las VMs `local`, `dev` y `prod` a la tailnet para acceder a cada una por SSH con llave desde tu PC cliente.
-
-Necesitas:
-
-- Las 3 VMs creadas — [create-ubuntu-server-on-multipass-vm.md](create-ubuntu-server-on-multipass-vm.md).
-- Tu PC cliente conectada a la tailnet — sección "Instalar y configurar Tailscale en la PC cliente" de [pcbox-bootstrap.md](pcbox-bootstrap.md).
-
 ## 0. Acceder a pcbox por SSH
 
 Desde la terminal de la PC cliente, accede a `pcbox` con la llave `deploy_key` ([pcbox-bootstrap.md](pcbox-bootstrap.md)):

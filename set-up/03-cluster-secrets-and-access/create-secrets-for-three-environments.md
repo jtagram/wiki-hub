@@ -1,27 +1,5 @@
 # Cargar los secretos en los namespaces de los 3 ambientes
 
-## Secretos por ambiente
-
-| Secret | Namespace | Variables |
-|---|---|---|
-| `postgres-credentials` | `databases` | `POSTGRES_USER`, `POSTGRES_PASSWORD` |
-| `postgres-credentials` | `iam-api` | `POSTGRES_USER`, `POSTGRES_PASSWORD` |
-| `jwt-keys` | `iam-api` | `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` |
-| `postgres-credentials` | `infra-hub-api` | `POSTGRES_USER`, `POSTGRES_PASSWORD` |
-| `server-ssh-key` | `infra-hub-api` | `SERVER_SSH_HOST`, `SERVER_SSH_USER`, `SERVER_SSH_PRIVATE_KEY` |
-| `postgres-credentials` | `ticket-hub-api` | `POSTGRES_USER`, `POSTGRES_PASSWORD` |
-| `ticket-hub-api-service-credentials` | `ticket-hub-api` | `CLIENT_ID`, `CLIENT_SECRET` |
-
-`iam` y `ticket-hub` no tienen secretos.
-
-En cada VM defines primero las variables con los valores de una línea de su ambiente (el bloque `PROD`, `DEV` o `LOCAL` que imprimió `main.sh`) y después copias y ejecutas los comandos tal cual.
-
-`JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` y `SERVER_SSH_PRIVATE_KEY` son bloques de varias líneas. En cada VM se guardan primero en archivos temporales, pegando el bloque completo (de `-----BEGIN` a `-----END`), y se cargan con `--from-file`. Al terminar se borran.
-
-Todos los comandos se ejecutan desde tu PC cliente, dentro de cada VM.
-
----
-
 ## local
 
 ```bash

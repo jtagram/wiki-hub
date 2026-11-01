@@ -1,7 +1,5 @@
 # Instalar Multipass en Ubuntu Server
 
-Multipass crea máquinas virtuales Ubuntu desde la terminal.
-
 ## 0. Acceder a pcbox por SSH
 
 Desde la terminal de la PC cliente, accede a `pcbox` con la llave `deploy_key` ([pcbox-bootstrap.md](pcbox-bootstrap.md)):

@@ -1,38 +1,12 @@
 # Crear los environments en GitHub
 
-Los workflows usan dos tipos de Environment, y casi todos viven en `deploy-hub-api`, donde corre todo el flujo:
-
-- **Environments con secretos** (`prod`, `dev`, `local`): guardan los secretos de ese ambiente. Todo job que lee `secrets.*` declara uno de ellos. No llevan regla de protección, así el job nunca queda esperando por culpa de los secretos.
-- **Environments de aprobación** (`production-approver`, `development-approver`): solo tienen la regla de aprobación manual y **no llevan secretos**. Los usa únicamente el job `gate` (vacío) de `deploy.yml`, que se detiene a esperar la aprobación antes de que el job `deploy` toque el cluster. El botón de aprobación solo aparece si el Environment tiene una regla de protección; sin regla, el job pasa sin pedir nada.
-
-Los repositorios de las apps solo necesitan el Environment `local`, porque lo único que hacen es disparar el deploy de local en `deploy-hub-api`. Ya no tienen workflows de dev ni de prod, ni aprobaciones.
-
-Los Environments no se comparten entre repositorios. Se crean una sola vez por repositorio.
-
-## 1. Datos
-
-Repositorios de apps: `iam`, `iam-api`, `infra-hub-api`, `ticket-hub`, `ticket-hub-api`.
-
-| Environment | Para qué sirve | Secretos | Aprobación manual |
-|---|---|---|---|
-| `prod` | Secretos de producción | Sí | No |
-| `dev` | Secretos de desarrollo | Sí | No |
-| `local` | Secretos de local | Sí | No |
-| `production-approver` | Aprobar el deploy a producción | No | Sí (Required reviewers) |
-| `development-approver` | Aprobar el deploy a desarrollo | No | Sí (Required reviewers) |
-
-| Repositorio | Environments que necesita |
-|---|---|
-| `deploy-hub-api` | los 5: `prod`, `dev`, `local`, `production-approver` y `development-approver` |
-| cada repositorio de app | solo `local` |
-
-## 2. Crear los environments
+## 1. Crear los environments
 
 Por cada repositorio, desde la web:
 
 1. `<repo>` → **Settings** → **Environments** → **New environment**.
-2. Escribe el nombre exacto de la tabla y pulsa **Configure environment**.
-3. Repite para cada Environment que corresponda al repositorio.
+2. Escribe el nombre exacto del Environment y pulsa **Configure environment**.
+3. Repite para cada Environment del repositorio: `prod`, `dev`, `local`, `production-approver` y `development-approver` en `deploy-hub-api`; solo `local` en cada app (`iam`, `iam-api`, `infra-hub-api`, `ticket-hub`, `ticket-hub-api`).
 
 O con la CLI. Pega el bloque completo y cambia solo `<tu-organizacion>`:
 
@@ -54,7 +28,7 @@ gh api -X PUT "repos/$NUEVA_ORG/ticket-hub/environments/local"
 gh api -X PUT "repos/$NUEVA_ORG/ticket-hub-api/environments/local"
 ```
 
-## 3. Agregar la aprobación manual en los approvers
+## 2. Agregar la aprobación manual en los approvers
 
 Solo en `deploy-hub-api`, y solo en `production-approver` y `development-approver`. Las apps no tienen Environments de aprobación.
 
@@ -75,7 +49,7 @@ El workflow ya rechaza un lanzamiento desde una rama equivocada (job `validate-b
 | `dev` y `development-approver` | `dev` |
 | `prod` y `production-approver` | `master` |
 
-## 4. Verificar
+## 3. Verificar
 
 Lista los environments de cada repositorio. Pega el bloque completo y cambia solo `<tu-organizacion>`:
 
@@ -111,7 +85,7 @@ echo "deploy-hub-api/production-approver"; gh api "repos/$NUEVA_ORG/deploy-hub-a
 echo "deploy-hub-api/development-approver"; gh api "repos/$NUEVA_ORG/deploy-hub-api/environments/development-approver" --jq '.protection_rules[].type'
 ```
 
-Cada comando debe mostrar `required_reviewers`. Si no imprime nada, el Environment existe pero no tiene aprobación: el deploy pasaría sin pedir confirmación. Vuelve al paso 3.
+Cada comando debe mostrar `required_reviewers`. Si no imprime nada, el Environment existe pero no tiene aprobación: el deploy pasaría sin pedir confirmación. Vuelve al paso 2.
 
 Haz la comprobación inversa en `prod`, `dev` y `local` de `deploy-hub-api`: no deben mostrar ninguna regla de aprobación. Si restringiste las ramas, aparecerá una regla de tipo `branch_policy`, y eso es correcto: lo que no debe aparecer es `required_reviewers`.
 
