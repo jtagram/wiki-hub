@@ -29,18 +29,18 @@ Instalar MicroK8s y crear los namespaces de cada ambiente.
 
 ## Grupo 3: Secretos y accesos en el cluster
 
-Cargar los Secrets y crear los usuarios, roles y ServiceAccounts.
+Cargar los Secrets y crear los ServiceAccounts, tokens, roles y kubeconfig.
 
 | Qué se hace | Descripción | Documento |
 |---|---|---|
 | 7. Generar los valores de los secretos | Generar los valores de los secretos de cada ambiente. Guarda la salida. | [Ir →](03-cluster-secrets-and-access/generate-secret-values-for-microk8s/generate-secret-values-for-microk8s.md) |
 | 8. Crear los Secrets de Kubernetes | Cargar esos valores como Secrets de Kubernetes en el namespace de cada app. | [Ir →](03-cluster-secrets-and-access/create-secrets-for-three-environments.md) |
 | 9. Configurar el certificado del API server | Agregar la IP de Tailscale de cada VM al certificado del API server y regenerarlo. | [Ir →](03-cluster-secrets-and-access/configure-api-server-certificate-for-three-environments.md) |
-| 10. Crear el usuario y su token | Crear el usuario `viewer-secrets-editor` y el Secret con su token en cada ambiente. | [Ir →](03-cluster-secrets-and-access/create-users-for-three-environments.md) |
-| 11. Crear el kubeconfig del usuario | Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente. | [Ir →](03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md) |
+| 10. Crear los ServiceAccounts | Crear los ServiceAccounts `viewer-secrets-editor`, `deployer` y el de cada app en cada ambiente. | [Ir →](03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md) |
+| 11. Crear el token | Crear los Secrets con el token de `viewer-secrets-editor` y de `deployer` en cada ambiente. | [Ir →](03-cluster-secrets-and-access/create-tokens-for-three-environments.md) |
 | 12. Crear los roles | Crear los roles de solo lectura y de edición de Secrets. | [Ir →](03-cluster-secrets-and-access/create-roles-for-three-environments.md) |
 | 13. Asignar los roles al usuario | Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en su ambiente. | [Ir →](03-cluster-secrets-and-access/create-rolebindings-for-three-environments.md) |
-| 14. Crear los ServiceAccounts | Crear el ServiceAccount de cada app en su ambiente. | [Ir →](03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md) |
+| 14. Crear el kubeconfig del usuario | Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente. | [Ir →](03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md) |
 
 ## Grupo 4: Base de datos
 

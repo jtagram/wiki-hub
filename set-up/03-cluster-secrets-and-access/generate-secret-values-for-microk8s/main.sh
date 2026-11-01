@@ -24,9 +24,7 @@ ENVIRONMENTS=(prod dev local)
 . "$SCRIPT_DIR/generate_client_credentials.sh"
 . "$SCRIPT_DIR/generate_admin_credentials.sh"
 
-# Dependencias verificadas antes de pedir datos, para no hacer escribir
-# contraseñas y fallar después.
-check_sshpass_available
+# Dependencias verificadas antes de generar nada, para no fallar a medias.
 check_bcrypt_available
 
 declare -A SUMMARY
@@ -73,9 +71,6 @@ for env_name in "${ENVIRONMENTS[@]}"; do
   generate_client_credentials
   generate_admin_credentials
   build_env_block "$env_name"
-  # Las contraseñas ya cumplieron su propósito: se descartan al terminar
-  # cada entorno, antes de pedir las del siguiente.
-  unset SSH_PASSWORD SUDO_PASSWORD
 done
 
 echo

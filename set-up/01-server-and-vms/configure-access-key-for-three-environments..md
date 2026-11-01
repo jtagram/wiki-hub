@@ -31,7 +31,7 @@ scp ~/.ssh/pcbox_prod.pub jhon@IP_TAILSCALE_SERVER_PCBOX:~/
 
 `IP_TAILSCALE_SERVER_PCBOX` es la IP de `pcbox` que guardaste en [pcbox-bootstrap.md](pcbox-bootstrap.md).
 
-Entra a `pcbox`. Los pasos 3, 4 y 5 se ejecutan desde ahí:
+Entra a `pcbox`. Los pasos 3 y 4 se ejecutan desde ahí:
 
 ```bash
 ssh jhon@IP_TAILSCALE_SERVER_PCBOX
@@ -54,27 +54,7 @@ multipass transfer ~/pcbox_prod.pub prod:/tmp/pcbox_prod.pub
 multipass exec prod -- sh -c 'cat /tmp/pcbox_prod.pub >> ~/.ssh/authorized_keys'
 ```
 
-## 4. Sudo sin contraseña
-
-```bash
-multipass exec local -- sudo sh -c "echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-ubuntu-nopasswd"
-multipass exec local -- sudo chmod 440 /etc/sudoers.d/90-ubuntu-nopasswd
-multipass exec local -- sudo visudo -cf /etc/sudoers.d/90-ubuntu-nopasswd
-```
-
-```bash
-multipass exec dev -- sudo sh -c "echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-ubuntu-nopasswd"
-multipass exec dev -- sudo chmod 440 /etc/sudoers.d/90-ubuntu-nopasswd
-multipass exec dev -- sudo visudo -cf /etc/sudoers.d/90-ubuntu-nopasswd
-```
-
-```bash
-multipass exec prod -- sudo sh -c "echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-ubuntu-nopasswd"
-multipass exec prod -- sudo chmod 440 /etc/sudoers.d/90-ubuntu-nopasswd
-multipass exec prod -- sudo visudo -cf /etc/sudoers.d/90-ubuntu-nopasswd
-```
-
-## 5. Dejar SSH solo con llave
+## 4. Dejar SSH solo con llave
 
 El usuario `ubuntu` no tiene contraseña. Cada comando `passwd` te pide definir una. Guárdala: es el `SSH_PASSWORD` de ese ambiente. Solo sirve para el acceso local desde `pcbox`; por SSH ya no se acepta.
 
@@ -103,7 +83,7 @@ multipass exec prod -- sudo systemctl restart ssh
 
 Sal de `pcbox` con `exit`.
 
-## 6. Verificar
+## 5. Verificar
 
 Desde tu PC cliente. Con llave, cada comando debe imprimir `OK` sin pedir contraseña:
 

@@ -2,14 +2,15 @@
 # generate_server_ssh_key.sh
 #
 # Genera un par de claves ed25519 por entorno en $SCRIPT_DIR/generated/, copia
-# la clave pública al servidor (primero sin sudo, con fallback a sudo) y
-# verifica que la autenticación con la clave privada funcione. Pensado para
-# ser sourceado desde main.sh y llamado una vez por entorno:
+# la clave pública al servidor y verifica que la autenticación con la clave
+# privada funcione. El acceso al servidor para copiarla se hace con la llave
+# de administración ~/.ssh/pcbox_<entorno> (la de la guía de llaves de acceso),
+# sin contraseña. Pensado para ser sourceado desde main.sh y llamado una vez
+# por entorno:
 #   . "$SCRIPT_DIR/generate_server_ssh_key.sh"
-#   check_sshpass_available
 #   generate_server_ssh_key prod
-# Requiere ya seteados: SERVER_SSH_HOST, SERVER_SSH_USER, SSH_PASSWORD,
-# SUDO_PASSWORD (los pide collect_inputs.sh).
+# Requiere ya seteados: SERVER_SSH_HOST, SERVER_SSH_USER (los define
+# collect_inputs.sh).
 # Deja disponible en el shell que lo sourcea: SERVER_SSH_PRIVATE_KEY.
 #
 # La clave privada NUNCA se manda al servidor: solo se copia la pública.
@@ -27,21 +28,18 @@ shquote() {
   printf "'%s'" "${s//\'/\'\\\'\'}"
 }
 
-# Falla temprano (antes de pedir nada al usuario) si falta sshpass.
-check_sshpass_available() {
-  if ! command -v sshpass >/dev/null 2>&1; then
-    echo "ERROR: falta el comando 'sshpass', necesario para automatizar el login SSH con contraseña." >&2
-    echo "Instálalo con:" >&2
-    echo "  Debian/Ubuntu: sudo apt install sshpass" >&2
-    echo "  Fedora:        sudo dnf install sshpass" >&2
-    exit 1
-  fi
-}
-
 generate_server_ssh_key() {
   local env_name=$1
   local key_path="$GENERATED_DIR/${env_name}_deploy_key"
-  local ssh_opts=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10)
+  local admin_key_path="$HOME/.ssh/pcbox_${env_name}"
+  local ssh_opts=(-i "$admin_key_path" -o IdentitiesOnly=yes -o PasswordAuthentication=no
+    -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10)
+
+  if [[ ! -f "$admin_key_path" ]]; then
+    echo "ERROR: no existe la llave de administración $admin_key_path." >&2
+    echo "Créala siguiendo la guía de llaves de acceso (configure-access-key-for-three-environments)." >&2
+    exit 1
+  fi
 
   mkdir -p "$GENERATED_DIR"
 
@@ -55,17 +53,18 @@ generate_server_ssh_key() {
   local public_key_content
   public_key_content="$(< "${key_path}.pub")"
 
-  # Chequeo de conectividad previo: si falla, el problema es de red/host/
-  # credenciales, no de permisos, y reintentar con sudo no ayuda.
+  # Chequeo de conectividad previo: si falla, el problema es de red, host o
+  # llave de administración.
   local connectivity_error
-  if ! connectivity_error="$(sshpass -p "$SSH_PASSWORD" ssh "${ssh_opts[@]}" \
+  if ! connectivity_error="$(ssh "${ssh_opts[@]}" \
       "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" true 2>&1)"; then
-    echo "ERROR: no se pudo conectar a ${SERVER_SSH_USER}@${SERVER_SSH_HOST}." >&2
+    echo "ERROR: no se pudo conectar a ${SERVER_SSH_USER}@${SERVER_SSH_HOST} con $admin_key_path." >&2
     echo "$connectivity_error" >&2
-    echo "Revisa que el servidor esté encendido, conectado a Tailscale, y que SSH_PASSWORD sea correcta (no es un problema de permisos)." >&2
+    echo "Revisa que el servidor esté encendido, conectado a Tailscale, y que la llave de administración esté autorizada en la VM." >&2
     exit 1
   fi
 
+  # La clave se agrega al authorized_keys de $SERVER_SSH_USER: no requiere sudo.
   local remote_script='
 set -euo pipefail
 mkdir -p ~/.ssh
@@ -78,32 +77,20 @@ grep -qxF "$NEW_KEY" ~/.ssh/authorized_keys || printf "%s\n" "$NEW_KEY" >> ~/.ss
 
   # El comando remoto va como UNA sola palabra quoteada: ssh concatena los
   # argumentos con espacios, lo que rompería un script con saltos de línea.
-  local remote_cmd_no_sudo="bash -c $(shquote "$remote_script")"
+  local remote_cmd="bash -c $(shquote "$remote_script")"
 
-  if sshpass -p "$SSH_PASSWORD" ssh "${ssh_opts[@]}" \
-      "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" "$remote_cmd_no_sudo" <<< "$public_key_content"; then
-    echo "[$env_name] Clave pública agregada sin necesitar sudo."
+  if ssh "${ssh_opts[@]}" \
+      "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" "$remote_cmd" <<< "$public_key_content"; then
+    echo "[$env_name] Clave pública agregada."
   else
-    echo "[$env_name] El intento sin sudo falló. Reintentando con sudo..." >&2
-
-    # sudo -S consume solo la primera línea de stdin (la contraseña); el
-    # resto (la clave pública) queda disponible para el "cat" remoto.
-    local remote_cmd_sudo="sudo -S bash -c $(shquote "$remote_script")"
-
-    if printf '%s\n%s' "$SUDO_PASSWORD" "$public_key_content" | \
-        sshpass -p "$SSH_PASSWORD" ssh "${ssh_opts[@]}" \
-        "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" "$remote_cmd_sudo"; then
-      echo "[$env_name] Clave pública agregada usando sudo."
-    else
-      echo "ERROR: no se pudo agregar la clave pública al servidor (falló tanto sin sudo como con sudo)." >&2
-      exit 1
-    fi
+    echo "ERROR: no se pudo agregar la clave pública al servidor." >&2
+    exit 1
   fi
 
-  # Verificación: no hace falta sshpass; BatchMode=yes hace que falle en vez
-  # de colgarse pidiendo password si algo salió mal.
+  # Verificación con la nueva clave: BatchMode=yes hace que falle en vez de
+  # colgarse pidiendo password si algo salió mal.
   local verify_output
-  if verify_output="$(ssh -i "$key_path" \
+  if verify_output="$(ssh -i "$key_path" -o IdentitiesOnly=yes \
       -o PasswordAuthentication=no -o StrictHostKeyChecking=accept-new \
       -o BatchMode=yes -o ConnectTimeout=10 \
       "${SERVER_SSH_USER}@${SERVER_SSH_HOST}" true 2>&1)"; then

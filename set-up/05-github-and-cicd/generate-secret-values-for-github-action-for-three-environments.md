@@ -8,6 +8,7 @@ Necesitas:
 
 - Repositorios clonados — [clone-organization-repositories.md](clone-organization-repositories.md).
 - Las 3 VMs con MicroK8s y el certificado del API server extendido con su IP de Tailscale — [configure-api-server-certificate-for-three-environments.md](../03-cluster-secrets-and-access/configure-api-server-certificate-for-three-environments.md). Sin eso, el kubeconfig de abajo no puede conectarse.
+- El ServiceAccount `deployer` y su token en las 3 VMs — [create-serviceaccounts-for-three-environments.md](../03-cluster-secrets-and-access/create-serviceaccounts-for-three-environments.md) y [create-tokens-for-three-environments.md](../03-cluster-secrets-and-access/create-tokens-for-three-environments.md).
 
 El kubeconfig de cada ambiente es el del ServiceAccount `deployer` de esa VM, con permisos limitados a desplegar las apps. No es el de administración ni el de solo lectura del usuario `viewer`. Lo usa `deploy-hub-api` para desplegar.
 
@@ -74,10 +75,9 @@ rules:
 EOF
 ```
 
-Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
+Asígnale los permisos en cada namespace de las apps:
 
 ```bash
-microk8s kubectl create serviceaccount deployer -n microk8s-access
 microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
@@ -86,20 +86,7 @@ microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole
 microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 ```
 
-Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
-
-```bash
-microk8s kubectl apply -f - <<'EOF'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: deployer-token
-  namespace: microk8s-access
-  annotations:
-    kubernetes.io/service-account.name: deployer
-type: kubernetes.io/service-account-token
-EOF
-```
+Arma el kubeconfig en la propia VM con el token que pediste en [create-tokens-for-three-environments.md](../03-cluster-secrets-and-access/create-tokens-for-three-environments.md). No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
 
 Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
 
@@ -229,10 +216,9 @@ rules:
 EOF
 ```
 
-Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
+Asígnale los permisos en cada namespace de las apps:
 
 ```bash
-microk8s kubectl create serviceaccount deployer -n microk8s-access
 microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
@@ -241,20 +227,7 @@ microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole
 microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 ```
 
-Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
-
-```bash
-microk8s kubectl apply -f - <<'EOF'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: deployer-token
-  namespace: microk8s-access
-  annotations:
-    kubernetes.io/service-account.name: deployer
-type: kubernetes.io/service-account-token
-EOF
-```
+Arma el kubeconfig en la propia VM con el token que pediste en [create-tokens-for-three-environments.md](../03-cluster-secrets-and-access/create-tokens-for-three-environments.md). No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
 
 Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
 
@@ -384,10 +357,9 @@ rules:
 EOF
 ```
 
-Crea el ServiceAccount y asígnale los permisos en cada namespace de las apps:
+Asígnale los permisos en cada namespace de las apps:
 
 ```bash
-microk8s kubectl create serviceaccount deployer -n microk8s-access
 microk8s kubectl create clusterrolebinding deployer-cluster --clusterrole=deployer-cluster --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 microk8s kubectl create rolebinding deployer-binding -n iam-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
@@ -396,20 +368,7 @@ microk8s kubectl create rolebinding deployer-binding -n ticket-hub --clusterrole
 microk8s kubectl create rolebinding deployer-binding -n ticket-hub-api --clusterrole=app-deployer --serviceaccount=microk8s-access:deployer
 ```
 
-Pide el token (no expira) y arma el kubeconfig en la propia VM. No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
-
-```bash
-microk8s kubectl apply -f - <<'EOF'
-apiVersion: v1
-kind: Secret
-metadata:
-  name: deployer-token
-  namespace: microk8s-access
-  annotations:
-    kubernetes.io/service-account.name: deployer
-type: kubernetes.io/service-account-token
-EOF
-```
+Arma el kubeconfig en la propia VM con el token que pediste en [create-tokens-for-three-environments.md](../03-cluster-secrets-and-access/create-tokens-for-three-environments.md). No copies el token a mano: es un JWT de más de 800 caracteres y perder un carácter lo vuelve inválido sin que lo notes.
 
 Espera unos segundos a que Kubernetes rellene el campo `token` y genera el archivo:
 

@@ -191,11 +191,4 @@ Error from server (Forbidden): secrets is forbidden: User "system:serviceaccount
 
 Si un comando que debía fallar se ejecuta, revisa los `ClusterRole` de [create-roles-for-three-environments.md](create-roles-for-three-environments.md): no debe haber verbos de escritura fuera de los Secrets.
 
-## Datos que quedan
-
-| Dato | Qué es | Para qué sirve |
-|---|---|---|
-| `<ambiente>-viewer-secrets-editor-view` | `ClusterRoleBinding` | Le da `cluster-viewer` al usuario: ve todo el cluster de la VM |
-| `viewer-secrets-editor-binding` | `RoleBinding` en cada namespace del ambiente | Le da `secrets-editor` al usuario solo en ese namespace |
-
 <p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

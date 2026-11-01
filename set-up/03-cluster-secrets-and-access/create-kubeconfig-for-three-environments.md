@@ -134,10 +134,4 @@ scp -i ~/.ssh/pcbox_dev ubuntu@pcbox-dev:~/pcbox-kubeconfig-viewer-dev.yaml .
 scp -i ~/.ssh/pcbox_prod ubuntu@pcbox-prod:~/pcbox-kubeconfig-viewer-prod.yaml .
 ```
 
-## Datos que quedan
-
-| Dato | Qué es | Para qué sirve |
-|---|---|---|
-| `pcbox-kubeconfig-viewer-<ambiente>.yaml` | Kubeconfig del usuario | Lo que usa la PC cliente para conectarse |
-
 <p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>

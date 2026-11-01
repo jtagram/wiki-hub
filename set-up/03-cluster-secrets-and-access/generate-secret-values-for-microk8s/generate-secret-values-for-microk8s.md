@@ -9,15 +9,9 @@ cd wiki-hub/set-up/03-cluster-secrets-and-access/generate-secret-values-for-micr
 ./main.sh
 ```
 
-## Datos que va a pedir el script `main.sh`
+## Requisitos
 
-Solo contraseñas, una por entorno, en este orden: `PROD`, `DEV`, `LOCAL`.
-
-| Dato | `PROD` | `DEV` | `LOCAL` |
-|---|---|---|---|
-| `SSH_PASSWORD` | contraseña de `ubuntu` en `prod` | contraseña de `ubuntu` en `dev` | contraseña de `ubuntu` en `local` |
-
-Es la contraseña que definiste en el paso 5 de la guía de llaves.
+El script no pide ningún dato. Usa las llaves `~/.ssh/pcbox_prod`, `~/.ssh/pcbox_dev` y `~/.ssh/pcbox_local` que creaste en [configure-access-key-for-three-environments..md](../../01-server-and-vms/configure-access-key-for-three-environments..md) para entrar a cada VM y autorizar la llave del CI.
 
 ## Respuesta del script
 

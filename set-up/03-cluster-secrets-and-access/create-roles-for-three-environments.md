@@ -115,11 +115,4 @@ microk8s kubectl get clusterrole cluster-viewer secrets-editor
 exit
 ```
 
-## Datos que quedan
-
-| Dato | Qué es | Para qué sirve |
-|---|---|---|
-| `cluster-viewer` | `ClusterRole` de solo lectura | Permite ver todo el cluster de la VM |
-| `secrets-editor` | `ClusterRole` que escribe Secrets | Se asigna con un `RoleBinding` en cada namespace del ambiente, así que solo vale ahí |
-
 <p align="right"><a href="../set-up-the-ecosystem-jtagram.md">← Back</a></p>
