@@ -89,39 +89,6 @@ INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Local', 'admin.local@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.local@jtagram.local'
-  AND a.name = 'iam'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.local@jtagram.local'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.local@jtagram.local'
-  AND a.name IN ('iam-api', 'ticket-hub-api')
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
 INSERT INTO internal_users_applications (internal_user_id, application_id)
 SELECT u.id, a.id
 FROM internal_users u, apps_applications a
@@ -131,6 +98,16 @@ WHERE u.email = 'admin.local@jtagram.local'
     SELECT 1 FROM internal_users_applications ia
     WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
   );
+
+INSERT INTO internal_users_roles (internal_user_application_id, role_id)
+SELECT iua.id, r.id
+FROM internal_users u
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE u.email = 'admin.local@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+ON CONFLICT (internal_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
 SELECT u.id, o.id, d.id
@@ -146,48 +123,25 @@ INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
 
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'infra-hub-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'iam-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
 INSERT INTO apps_users_applications (app_user_id, application_id)
 SELECT au.id, a.id
 FROM apps_users au, apps_applications a
 WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api', 'ticket-hub')
   AND NOT EXISTS (
     SELECT 1 FROM apps_users_applications aua
     WHERE aua.app_user_id = au.id AND aua.application_id = a.id
   );
+
+INSERT INTO apps_users_roles (app_user_application_id, role_id)
+SELECT aua.id, r.id
+FROM apps_users au
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('infra-hub-api', 'ticket-hub', 'iam-api')
+ON CONFLICT (app_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
 SELECT au.id, o.id, d.id
@@ -212,8 +166,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_local -d iam_api -c "
 SELECT u.email, a.name AS aplicacion, r.name AS rol
 FROM internal_users u
-JOIN internal_users_roles ir ON ir.internal_user_id = u.id
-JOIN apps_applications a ON a.id = ir.application_id
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN internal_users_roles ir ON ir.internal_user_application_id = iua.id
 JOIN apps_roles r ON r.id = ir.role_id;
 "
 ```
@@ -225,8 +180,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_local -d iam_api -c "
 SELECT au.cliente_id, a.name AS aplicacion, r.name AS rol
 FROM apps_users au
-JOIN apps_users_roles aur ON aur.app_user_id = au.id
-JOIN apps_applications a ON a.id = aur.application_id
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_users_roles aur ON aur.app_user_application_id = aua.id
 JOIN apps_roles r ON r.id = aur.role_id;
 "
 ```
@@ -312,39 +268,6 @@ INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Dev', 'admin.dev@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.dev@jtagram.local'
-  AND a.name = 'iam'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.dev@jtagram.local'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.dev@jtagram.local'
-  AND a.name IN ('iam-api', 'ticket-hub-api')
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
 INSERT INTO internal_users_applications (internal_user_id, application_id)
 SELECT u.id, a.id
 FROM internal_users u, apps_applications a
@@ -354,6 +277,16 @@ WHERE u.email = 'admin.dev@jtagram.local'
     SELECT 1 FROM internal_users_applications ia
     WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
   );
+
+INSERT INTO internal_users_roles (internal_user_application_id, role_id)
+SELECT iua.id, r.id
+FROM internal_users u
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE u.email = 'admin.dev@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+ON CONFLICT (internal_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
 SELECT u.id, o.id, d.id
@@ -369,48 +302,25 @@ INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
 
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'infra-hub-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'iam-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
 INSERT INTO apps_users_applications (app_user_id, application_id)
 SELECT au.id, a.id
 FROM apps_users au, apps_applications a
 WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api', 'ticket-hub')
   AND NOT EXISTS (
     SELECT 1 FROM apps_users_applications aua
     WHERE aua.app_user_id = au.id AND aua.application_id = a.id
   );
+
+INSERT INTO apps_users_roles (app_user_application_id, role_id)
+SELECT aua.id, r.id
+FROM apps_users au
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('infra-hub-api', 'ticket-hub', 'iam-api')
+ON CONFLICT (app_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
 SELECT au.id, o.id, d.id
@@ -435,8 +345,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_dev -d iam_api -c "
 SELECT u.email, a.name AS aplicacion, r.name AS rol
 FROM internal_users u
-JOIN internal_users_roles ir ON ir.internal_user_id = u.id
-JOIN apps_applications a ON a.id = ir.application_id
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN internal_users_roles ir ON ir.internal_user_application_id = iua.id
 JOIN apps_roles r ON r.id = ir.role_id;
 "
 ```
@@ -448,8 +359,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_dev -d iam_api -c "
 SELECT au.cliente_id, a.name AS aplicacion, r.name AS rol
 FROM apps_users au
-JOIN apps_users_roles aur ON aur.app_user_id = au.id
-JOIN apps_applications a ON a.id = aur.application_id
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_users_roles aur ON aur.app_user_application_id = aua.id
 JOIN apps_roles r ON r.id = aur.role_id;
 "
 ```
@@ -535,39 +447,6 @@ INSERT INTO internal_users (name, lastname, email, password)
 VALUES ('Admin', 'Prod', 'admin.prod@jtagram.local', '<ADMIN_PASSWORD_HASH>')
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.prod@jtagram.local'
-  AND a.name = 'iam'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.prod@jtagram.local'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
-INSERT INTO internal_users_roles (internal_user_id, application_id, role_id)
-SELECT u.id, a.id, r.id
-FROM internal_users u, apps_applications a, apps_roles r
-WHERE u.email = 'admin.prod@jtagram.local'
-  AND a.name IN ('iam-api', 'ticket-hub-api')
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM internal_users_roles ir
-    WHERE ir.internal_user_id = u.id AND ir.application_id = a.id AND ir.role_id = r.id
-  );
-
 INSERT INTO internal_users_applications (internal_user_id, application_id)
 SELECT u.id, a.id
 FROM internal_users u, apps_applications a
@@ -577,6 +456,16 @@ WHERE u.email = 'admin.prod@jtagram.local'
     SELECT 1 FROM internal_users_applications ia
     WHERE ia.internal_user_id = u.id AND ia.application_id = a.id
   );
+
+INSERT INTO internal_users_roles (internal_user_application_id, role_id)
+SELECT iua.id, r.id
+FROM internal_users u
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE u.email = 'admin.prod@jtagram.local'
+  AND a.name IN ('iam', 'ticket-hub', 'iam-api', 'ticket-hub-api')
+ON CONFLICT (internal_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO internal_users_connections (internal_user_id, origin_application_id, destination_application_id)
 SELECT u.id, o.id, d.id
@@ -592,48 +481,25 @@ INSERT INTO apps_users (cliente_id, cliente_secret, name, description)
 VALUES ('ticket-hub-api', '<CLIENT_SECRET_HASH>', 'ticket-hub-api', 'Usuario de servicio de ticket-hub-api')
 ON CONFLICT (cliente_id) DO NOTHING;
 
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'infra-hub-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'ticket-hub'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
-INSERT INTO apps_users_roles (app_user_id, application_id, role_id)
-SELECT au.id, a.id, r.id
-FROM apps_users au, apps_applications a, apps_roles r
-WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name = 'iam-api'
-  AND r.application_id = a.id AND r.name = 'ADMIN'
-  AND NOT EXISTS (
-    SELECT 1 FROM apps_users_roles aur
-    WHERE aur.app_user_id = au.id AND aur.application_id = a.id AND aur.role_id = r.id
-  );
-
 INSERT INTO apps_users_applications (app_user_id, application_id)
 SELECT au.id, a.id
 FROM apps_users au, apps_applications a
 WHERE au.cliente_id = 'ticket-hub-api'
-  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api')
+  AND a.name IN ('ticket-hub-api', 'iam-api', 'infra-hub-api', 'ticket-hub')
   AND NOT EXISTS (
     SELECT 1 FROM apps_users_applications aua
     WHERE aua.app_user_id = au.id AND aua.application_id = a.id
   );
+
+INSERT INTO apps_users_roles (app_user_application_id, role_id)
+SELECT aua.id, r.id
+FROM apps_users au
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_roles r ON r.application_id = a.id AND r.name = 'ADMIN'
+WHERE au.cliente_id = 'ticket-hub-api'
+  AND a.name IN ('infra-hub-api', 'ticket-hub', 'iam-api')
+ON CONFLICT (app_user_application_id, role_id) DO NOTHING;
 
 INSERT INTO apps_users_connections (app_user_id, origin_application_id, destination_application_id)
 SELECT au.id, o.id, d.id
@@ -658,8 +524,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_prod -d iam_api -c "
 SELECT u.email, a.name AS aplicacion, r.name AS rol
 FROM internal_users u
-JOIN internal_users_roles ir ON ir.internal_user_id = u.id
-JOIN apps_applications a ON a.id = ir.application_id
+JOIN internal_users_applications iua ON iua.internal_user_id = u.id
+JOIN apps_applications a ON a.id = iua.application_id
+JOIN internal_users_roles ir ON ir.internal_user_application_id = iua.id
 JOIN apps_roles r ON r.id = ir.role_id;
 "
 ```
@@ -671,8 +538,9 @@ microk8s kubectl exec -i -n databases deploy/postgres -- \
   psql -U jtagram_prod -d iam_api -c "
 SELECT au.cliente_id, a.name AS aplicacion, r.name AS rol
 FROM apps_users au
-JOIN apps_users_roles aur ON aur.app_user_id = au.id
-JOIN apps_applications a ON a.id = aur.application_id
+JOIN apps_users_applications aua ON aua.app_user_id = au.id
+JOIN apps_applications a ON a.id = aua.application_id
+JOIN apps_users_roles aur ON aur.app_user_application_id = aua.id
 JOIN apps_roles r ON r.id = aur.role_id;
 "
 ```

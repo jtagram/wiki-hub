@@ -41,6 +41,7 @@ Cargar los Secrets y crear los ServiceAccounts, tokens, roles y kubeconfig.
 | 12. Crear los roles | Crear los roles de solo lectura y de edición de Secrets. | [Ir →](03-cluster-secrets-and-access/create-roles-for-three-environments.md) |
 | 13. Asignar los roles al usuario | Asignar los roles al usuario de cada ambiente: ve todo y edita Secrets solo en su ambiente. | [Ir →](03-cluster-secrets-and-access/create-rolebindings-for-three-environments.md) |
 | 14. Crear el kubeconfig del usuario | Armar el kubeconfig del usuario en cada VM y bajarlo a la PC cliente. | [Ir →](03-cluster-secrets-and-access/create-kubeconfig-for-three-environments.md) |
+| 15. Crear el kubeconfig de administración | Armar el kubeconfig de administración de cada VM y bajarlo a la PC cliente. Se usa para instalar componentes con `helm` y `kubectl`. | [Ir →](03-cluster-secrets-and-access/create-admin-kubeconfig-for-three-environments.md) |
 
 ## Grupo 4: Base de datos
 
@@ -48,10 +49,10 @@ Desplegar PostgreSQL, crear las bases y las tablas, y cargar los datos iniciales
 
 | Qué se hace | Descripción | Documento |
 |---|---|---|
-| 15. Desplegar PostgreSQL | Desplegar PostgreSQL en cada ambiente. | [Ir →](04-database/deploy-postgres-for-three-environments.md) |
-| 16. Crear las bases de datos | Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente. | [Ir →](04-database/create-databases-for-three-environments.md) |
-| 17. Crear las tablas | Crear las tablas de cada base en cada ambiente. | [Ir →](04-database/create-tables-for-three-environments.md) |
-| 18. Cargar los datos iniciales | Insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente. | [Ir →](04-database/initialize-values-in-the-database-for-three-environments.md) |
+| 16. Desplegar PostgreSQL | Desplegar PostgreSQL en cada ambiente. | [Ir →](04-database/deploy-postgres-for-three-environments.md) |
+| 17. Crear las bases de datos | Crear las bases `iam_api`, `infra_hub_api` y `ticket_hub_api` en cada ambiente. | [Ir →](04-database/create-databases-for-three-environments.md) |
+| 18. Crear las tablas | Crear las tablas de cada base en cada ambiente. | [Ir →](04-database/create-tables-for-three-environments.md) |
+| 19. Cargar los datos iniciales | Insertar los datos iniciales (primer usuario administrador y cuenta de servicio) en cada ambiente. | [Ir →](04-database/initialize-values-in-the-database-for-three-environments.md) |
 
 ## Grupo 5: GitHub y CI/CD
 
@@ -59,11 +60,11 @@ Clonar los repositorios, configurar los environments y secretos de GitHub, y cre
 
 | Qué se hace | Descripción | Documento |
 |---|---|---|
-| 19. Clonar los repositorios | Clonar los repositorios de la organización `jtagram` a tu organización de GitHub. | [Ir →](05-github-and-cicd/clone-organization-repositories.md) |
-| 20. Crear los environments de GitHub | En `deploy-hub-api`: `prod`, `dev` y `local`, con secretos y aprobadores. En cada app: solo `local`. | [Ir →](05-github-and-cicd/create-environment-in-github.md) |
-| 21. Obtener los valores de los secretos de GitHub Actions | Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos. | [Ir →](05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md) |
-| 22. Cargar los secretos en GitHub | Cargar los valores como Environment secrets: casi todos en `deploy-hub-api` y, en cada app, solo el token del deploy de local. | [Ir →](05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md) |
-| 23. Crear el primer tag | Crear el primer tag en GitHub y Docker Hub. | [Ir →](05-github-and-cicd/create-tag-for-dockerhub-and-github.md) |
+| 20. Clonar los repositorios | Clonar los repositorios de la organización `jtagram` a tu organización de GitHub. | [Ir →](05-github-and-cicd/clone-organization-repositories.md) |
+| 21. Crear los environments de GitHub | En `deploy-hub-api`: `prod`, `dev` y `local`, con secretos y aprobadores. En cada app: solo `local`. | [Ir →](05-github-and-cicd/create-environment-in-github.md) |
+| 22. Obtener los valores de los secretos de GitHub Actions | Obtener los valores de los secretos de GitHub Actions de cada ambiente. Guárdalos. | [Ir →](05-github-and-cicd/generate-secret-values-for-github-action-for-three-environments.md) |
+| 23. Cargar los secretos en GitHub | Cargar los valores como Environment secrets: casi todos en `deploy-hub-api` y, en cada app, solo el token del deploy de local. | [Ir →](05-github-and-cicd/load-secrets-for-github-action-for-three-environments.md) |
+| 24. Crear el primer tag | Crear el primer tag en GitHub y Docker Hub. | [Ir →](05-github-and-cicd/create-tag-for-dockerhub-and-github.md) |
 
 ## Grupo 6: Despliegue y operación
 
@@ -71,8 +72,8 @@ Hacer el primer deploy, exponer las apps y ver los logs.
 
 | Qué se hace | Descripción | Documento |
 |---|---|---|
-| 24. Hacer el primer deploy | Hacer el primer deploy de cada app en cada ambiente. | [Ir →](06-deploy-and-operation/first-deploy-for-three-environments.md) |
-| 25. Exponer las apps a Tailscale | Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS. | [Ir →](06-deploy-and-operation/expose-apps-to-tailscale-network-for-three-environments.md) |
-| 26. Implementar la observabilidad | Instalar Loki, Alloy y Grafana en cada ambiente y exponer Grafana a la tailnet. | [Ir →](06-deploy-and-operation/implement-observability.md) |
+| 25. Hacer el primer deploy | Hacer el primer deploy de cada app en cada ambiente. | [Ir →](06-deploy-and-operation/first-deploy-for-three-environments.md) |
+| 26. Exponer las apps a Tailscale | Exponer las apps de cada ambiente a la red de Tailscale con nombre propio y HTTPS. | [Ir →](06-deploy-and-operation/expose-apps-to-tailscale-network-for-three-environments.md) |
+| 27. Implementar la observabilidad | Instalar Loki, Alloy y Grafana en cada ambiente y exponer Grafana a la tailnet. | [Ir →](06-deploy-and-operation/implement-observability.md) |
 
 <p align="right"><a href="../README.md">← Back</a></p>
